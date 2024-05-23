@@ -6,11 +6,11 @@ import numpy as np
 import polars as pl
 
 
-def label_learned(x: int, threshold=0.75) -> Literal[0, 1]:
+def label_learned(x: int, threshold=80) -> Literal[0, 1]:
     """
     labels learned or not learned as binary 0 or if over threshold
     """
-    if x > threshold:
+    if x >= threshold:
         return 1
     else:
         return 0
@@ -25,7 +25,7 @@ def combine_data(fp_df, percent_avoid_df) -> pl.DataFrame:
         percent_avoid_df, on=["day", "cage", "mouse_id"], how="left"
     ).with_columns(
         pl.col("perc_avoid")
-        .map_elements(lambda x: label_learned(x), return_dtype=pl.Int64)
+        .map_elements(lambda x: 1 if x >= 80 else 0, return_dtype=pl.Int64)
         .alias("learned")
     )
     return combined_data
@@ -66,10 +66,17 @@ def get_cutoff_idx(array_list: List[np.array]) -> int:
 
 
 # drop all idx after min length
-def shape_arrays(array_list: List[np.array], cut_off_idx: int) -> np.array:
+def shape_arrays(
+    array_list: List[np.array], cut_off_idx: int, tranpose_array: False
+) -> np.array:
     """takes in a list of numpy arrays and an index and returns a numpy array of the arrays concatenated along the columns and cut off at the index provided"""
     reshaped_list = [a[:cut_off_idx, :] for a in array_list]
-    return np.concatenate(reshaped_list, axis=1)
+    reshaped_array = np.concatenate(reshaped_list, axis=1)
+    # transponse arrays for each instance as a row
+    if tranpose_array:
+        return reshaped_array.T
+    else:
+        return reshaped_array
 
 
 # concat arrays
@@ -92,6 +99,12 @@ def read_parquets(path: Path) -> List[pl.DataFrame]:
     return [pl.scan_parquet(p) for p in list(path.iterdir())]
 
 
-def save_array(path: Path, file_name: str, array: np.array):
+def save_array_as_npy(path: Path, file_name: str, arr: np.array):
     path_to_save = path / f"{file_name}.npy"
-    np.save(path_to_save, array, allow_pickle=False)
+    np.save(path_to_save, arr, allow_pickle=False)
+
+
+def save_array_as_df_parquet(path, file_name: str, arr):
+    path_to_save = path / f"{file_name}.parquet"
+    df = pl.DataFrame(arr)
+    df.write_parquet(path_to_save)

@@ -1,4 +1,7 @@
 {
   "esbonio.sphinx.confDir": "",
-  "editor.formatOnSave": true
+  "editor.formatOnSave": true,
+  "amazonQ.showInlineCodeSuggestionsWithCodeReferences": false,
+  "amazonQ.telemetry": false,
+  "amazonQ.importRecommendationForInlineCodeSuggestions": false
 }
