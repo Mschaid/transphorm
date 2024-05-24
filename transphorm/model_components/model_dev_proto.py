@@ -37,8 +37,11 @@ def set_up_comet_logger():
 
 
 def main():
-    batch_size = 32
-    loader = AADataModule(batch_size=batch_size)
+    MAIN_DATA_PATH = Path(
+        "/Users/mds8301/Desktop/temp/dopamine_full_timeseries_array.pt"
+    )
+    BATCH_SIZE = 32
+    loader = AADataModule(main_path=MAIN_DATA_PATH, batch_size=BATCH_SIZE)
     # loader = TestTSDataModule(batch_size=batch_size)
     loader.prepare_data()
     loader.setup(stage="train")

@@ -7,8 +7,9 @@ import numpy as np
 
 
 class AADataModule(L.LightningDataModule):
-    def __init__(self, batch_size, num_workers=1):
+    def __init__(self, main_path, batch_size, num_workers=1):
         super().__init__()
+        self.main_path = main_path
         self.batch_size = batch_size
         self.num_workers = num_workers
         self.input_size = None
@@ -16,9 +17,8 @@ class AADataModule(L.LightningDataModule):
     def store_input_size(self, value):
         self.input_size = value
 
-    def prepare_data(self, main_path: Path):
-        ts_path = "/Users/mds8301/Desktop/temp/dopamine_full_timeseries_array.pt"
-        data = torch.load(ts_path)
+    def prepare_data(self):
+        data = torch.load(self.main_path)
 
         data = data[~torch.isnan(data[:, 0])]
 
@@ -36,6 +36,7 @@ class AADataModule(L.LightningDataModule):
         )
 
     def setup(self, stage):
+        torch.manual_seed(42)
         self.train, self.val, self.test = random_split(self.data, [0.7, 0.15, 0.15])
 
     def train_dataloader(self):

@@ -88,8 +88,8 @@ class DeepBinaryClassifier(L.LightningModule):
         super().__init__()
         self.save_hyperparameters()
         self.model = classifier
-        self.optimizer = optimizer
         self.loss_fn = nn.CrossEntropyLoss()
+        self.optimizer = optimizer
 
         # metrics
         self.accuracy = torchmetrics.classification.Accuracy(
@@ -168,5 +168,5 @@ class DeepBinaryClassifier(L.LightningModule):
         return loss
 
     def configure_optimizers(self):
-        optimizer = self.optimizer(self.parameters())
+        optimizer = self.optimizer(self.parameters(), lr=0.0001, weight_decay=0.001)
         return optimizer
