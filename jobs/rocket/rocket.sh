@@ -17,15 +17,15 @@ JOB_NAME = 'rocket_trainer'
 #SBATCH --job-name=$JOB_NAME
 
 #SBATCH --output=rocket_trainer.out
-curl -X POST\ $SLACK_WEBHOOK \
-     -H 'content-type: application/json' \
-     -d '{ "text": "$JOB_NAME started" }'
+# curl -X POST\ $SLACK_WEBHOOK \
+#      -H 'content-type: application/json' \
+#      -d '{ "text": "$JOB_NAME started" }'
 
 module purge
 module load python-anaconda3
 source activate transphorm
 
 python '/projects/p31961/transphorm/transphorm/experiments/rocket/fake_rocket_test.py' 
-curl -X POST\ $SLACK_WEBHOOK \
-     -H 'content-type: application/json' \
-     -d '{ "text": "$JOB_NAME completed" }'
+# curl -X POST\ $SLACK_WEBHOOK \
+#      -H 'content-type: application/json' \
+#      -d '{ "text": "$JOB_NAME completed" }'
