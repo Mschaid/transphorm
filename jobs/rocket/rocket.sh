@@ -11,7 +11,7 @@
 
 #SBATCH --time=12:00:00
 
-#SBATCH --job-name='rocket_trainer'
+#SBATCH --job-name='rocket_trainer_quest'
 
 #SBATCH --output=rocket_trainer.out
 
