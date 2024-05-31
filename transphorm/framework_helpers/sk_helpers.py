@@ -35,13 +35,19 @@ def split_data_reproduce(data: np.array, random_state: int = 42):
 
 
 # convert x to tensor
-def evaluate(y_test, y_pred):
+def evaluate(y_train, y_train_pred, y_test, y_test_pred):
     evals = {
-        "f1_score": f1_score(y_test, y_pred),
-        "accuracy": accuracy_score(y_test, y_pred),
-        "precision": precision_score(y_test, y_pred),
-        "recall": recall_score(y_test, y_pred),
-        "roc_auc": roc_auc_score(y_test, y_pred),
-        "confusion_matrix": confusion_matrix(y_test, y_pred),
+        "f1_score_test": f1_score(y_test, y_test_pred),
+        "accuracy_test": accuracy_score(y_test, y_test_pred),
+        "precision_test": precision_score(y_test, y_test_pred),
+        "recall_test": recall_score(y_test, y_test_pred),
+        "roc_auc_test": roc_auc_score(y_test, y_test_pred),
+        "confusion_matrix_test": confusion_matrix(y_test, y_test_pred),
+        "f1_score_train": f1_score(y_train, y_train_pred),
+        "accuracy_train": accuracy_score(y_train, y_train_pred),
+        "precision_train": precision_score(y_train, y_train_pred),
+        "recall_train": recall_score(y_train, y_train_pred),
+        "roc_auc_train": roc_auc_score(y_train, y_train_pred),
+        "confusion_matrix_train": confusion_matrix(y_train, y_train_pred),
     }
     return evals
