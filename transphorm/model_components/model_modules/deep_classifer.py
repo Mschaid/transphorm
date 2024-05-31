@@ -8,6 +8,8 @@ import torch.functional as F
 import lightning as L
 import logging
 
+from transphorm.model_components import HyperParams
+
 import torchmetrics.classification
 
 # set sup logger
@@ -84,12 +86,18 @@ class CNN(nn.Module):
 
 
 class DeepBinaryClassifier(L.LightningModule):
-    def __init__(self, classifier, optimizer):
+    def __init__(
+        self,
+        hyper_params: HyperParams,
+        model: nn.Module,
+        optimizer: torch.optim.Optimizer,
+    ):
         super().__init__()
-        self.save_hyperparameters()
-        self.model = classifier
+        self.hyper_params = hyper_params
+        self.model = model
         self.loss_fn = nn.CrossEntropyLoss()
         self.optimizer = optimizer
+        self.save_hyperparameters()
 
         # metrics
         self.accuracy = torchmetrics.classification.Accuracy(
