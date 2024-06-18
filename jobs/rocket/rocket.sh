@@ -1,29 +1,23 @@
 #!/bin/bash
-# SLACK_WEBHOOK = 'https://hooks.slack.com/triggers/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'
 
-# JOB_NAME = 'rocket_trainer'
 #SBATCH --account=p31961
 
 #SBATCH --partition=normal
 
-#SBATCH --nodes=10
+#SBATCH --nodes=1
 
-#SBATCH --ntasks-per-node=40
+#SBATCH --qos=normal
+#SBATCH --ntasks-per-node=4
 
 #SBATCH --mem=10G
 
-#SBATCH --time=12:00:00
+#SBATCH --time=00:10:00
 
 #SBATCH --job-name='rocket_trainer'
 
-#SBATCH --output=rocket_trainer.out
-# curl -X POST\ $SLACK_WEBHOOK \
-#      -H 'content-type: application/json' \
-#      -d '{ "text": "$JOB_NAME started" }'
+JOB_NAME='rocket_trainer'
 
-source activate transphorm
+curl -X POST -H 'Content-type: application/json' --data '{"text":"'${JOB_NAME}' started"}' $SLACK_WEBHOOK
+python '/projects/p31961/transphorm/transphorm/experiments/rocket/rocket.py'
 
-python '/projects/p31961/transphorm/transphorm/experiments/rocket/rocket.py' 
-curl -X POST\ 'https://hooks.slack.com/triggers/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'\
-      -H 'content-type: application/json' \
-      -d '{ "text": "$JOB_NAME completed" }'
+curl -X POST -H 'Content-type: application/json' --data '{"text":"'${JOB_NAME}' complete"}' $SLACK_WEBHOOK
