@@ -7,7 +7,7 @@ import numpy as np
 
 
 class AADataModule(L.LightningDataModule):
-    def __init__(self, main_path, batch_size, num_workers=1):
+    def __init__(self, main_path: Path, batch_size: int, num_workers: int = 1):
         super().__init__()
         self.main_path = main_path
         self.batch_size = batch_size
@@ -22,7 +22,7 @@ class AADataModule(L.LightningDataModule):
 
         data = data[~torch.isnan(data[:, 0])]
 
-        features = data[:, 1:]
+        features = data[:, 1:][:, ::25]
         labels = data[:, 0]
 
         input_size = features[0].shape[0]
@@ -54,6 +54,7 @@ class AADataModule(L.LightningDataModule):
             batch_size=self.batch_size,
             num_workers=self.num_workers,
             shuffle=False,
+            persistent_workers=True,
         )
 
     def test_dataloader(self):
@@ -63,3 +64,8 @@ class AADataModule(L.LightningDataModule):
             num_workers=self.num_workers,
             shuffle=False,
         )
+
+    @property
+    def tensor_shape(self):
+        seq = self.train.dataset.tensors
+        return seq[0].shape
