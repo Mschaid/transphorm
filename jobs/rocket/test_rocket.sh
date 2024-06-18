@@ -17,8 +17,8 @@
 
 #SBATCH --job-name='rocket_trainer'
 
-#curl -X POST -H 'Content-type: application/json' --data '{"text":"$JOB_NAME started"}' https://hooks.slack.com/services/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
+#curl -X POST -H 'Content-type: application/json' --data '{"text":"$JOB_NAME started"}' $SLACK_WEBHOOK 
 
 python '/projects/p31961/transphorm/transphorm/experiments/rocket/fake_rocket_test.py' 
 
-#curl -X POST -H 'Content-type: application/json' --data '{"text":"$JOB_NAME complete"}' https://hooks.slack.com/services/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
+#curl -X POST -H 'Content-type: application/json' --data '{"text":"$JOB_NAME complete"}' $SLACK_WEBHOOK 
