@@ -56,7 +56,7 @@ def main():
     experiment.log_parameters(params)
     log_model(model=rocket, experiment=experiment)
     log.info('Experiment logged to Comet')
-)
+
 
 if __name__ == "__main__":
     main()
