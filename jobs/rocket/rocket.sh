@@ -18,6 +18,7 @@
 JOB_NAME='rocket_trainer'
 
 curl -X POST -H 'Content-type: application/json' --data '{"text":"'${JOB_NAME}' started"}' $SLACK_WEBHOOK
+source activate transphorm
 python '/projects/p31961/transphorm/transphorm/experiments/rocket/rocket.py'
 
 curl -X POST -H 'Content-type: application/json' --data '{"text":"'${JOB_NAME}' complete"}' $SLACK_WEBHOOK
