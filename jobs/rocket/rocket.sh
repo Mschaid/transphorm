@@ -21,11 +21,9 @@
 #      -H 'content-type: application/json' \
 #      -d '{ "text": "$JOB_NAME started" }'
 
-module purge
-module load python-anaconda3
 source activate transphorm
 
-python '/projects/p31961/transphorm/transphorm/experiments/rocket/fake_rocket_test.py' 
-# curl -X POST\ $SLACK_WEBHOOK \
-#      -H 'content-type: application/json' \
-#      -d '{ "text": "$JOB_NAME completed" }'
+python '/projects/p31961/transphorm/transphorm/experiments/rocket/rocket.py' 
+curl -X POST\ 'https://hooks.slack.com/triggers/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'\
+      -H 'content-type: application/json' \
+      -d '{ "text": "$JOB_NAME completed" }'
