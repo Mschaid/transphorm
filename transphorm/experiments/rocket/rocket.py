@@ -34,7 +34,7 @@ def main():
     )
 
     rocket = RocketClassifier(
-        num_kernels=100000,
+        num_kernels=30000,
         n_features_per_kernel=10,
         rocket_transform="minirocket",
         n_jobs=-1,
