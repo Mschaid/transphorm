@@ -83,7 +83,7 @@ def main():
 
     """ load data"""
 
-    log.info(f"Loaded data with shape {data.shape}")
+    log.info(f"Loaded data with shape {X.shape, y.shape}")
     X, y = load_data()
 
     X_train, X_test, y_train, y_test = train_test_split(
