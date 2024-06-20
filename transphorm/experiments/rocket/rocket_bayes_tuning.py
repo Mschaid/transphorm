@@ -9,6 +9,7 @@ from transphorm.framework_helpers.sk_helpers import *
 from transphorm.framework_helpers.comet_helpers import *
 from comet_ml.integration.sklearn import log_model
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import f1_score
 
 
 def set_hypertune_configs():
@@ -52,6 +53,8 @@ def train_rocket(exp, X_train, y_train, X_test, y_test):
     model = rocket.fit(X_train, y_train)
     test_predict = model.predict(X_test)
     train_predict = model.predict(X_train)
+
+    f1_score_test = f1_score(y_test, test_predict)
 
     evals = evaluate(y_train, train_predict, y_test, test_predict)
 
