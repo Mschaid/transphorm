@@ -14,7 +14,7 @@ from sklearn.model_selection import train_test_split
 def set_hypertune_configs():
     configs = {
         "algorithm": "bayes",
-        "paramters": {
+        "parameters": {
             "num_kernels": [1000, 10_000, 50_000, 100_000],
             "n_features_per_kernel": [10, 20, 50, 100],
             "rocket_transform": ["rocket", "minirocket"],
@@ -83,7 +83,7 @@ def main():
 
     """ load data"""
 
-    X, y = load_data()
+    X, y = load_data(data_path)
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.3, random_state=42
     )
