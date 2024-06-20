@@ -44,7 +44,7 @@ def train_rocket(exp, X_train, y_train, X_test, y_test):
         "num_kernels": exp.get_parameter("num_kernels"),
         "n_features_per_kernel": exp.get_parameter("n_features_per_kernel"),
         "rocket_transform": exp.get_parameter("rocket_transform"),
-        "max_dilations_per_kernel": exp.get_parameter("exp.get_parameter"),
+        "max_dilations_per_kernel": exp.get_parameter("max_dilations_per_kernel"),
         "n_jobs": exp.get_parameter("n_jobs"),
         "random_state": exp.get_parameter("random_state"),
     }
@@ -53,8 +53,6 @@ def train_rocket(exp, X_train, y_train, X_test, y_test):
     model = rocket.fit(X_train, y_train)
     test_predict = model.predict(X_test)
     train_predict = model.predict(X_train)
-
-    f1_score_test = f1_score(y_test, test_predict)
 
     evals = evaluate(y_train, train_predict, y_test, test_predict)
 
@@ -76,10 +74,10 @@ def run_optimizer(project_name, opt, X_train, X_test, y_train, y_test):
 def main():
     log = structlog.get_logger()
     PROJECT_NAME = "rocket_classifier_bayes_tuning"
-    # MAIN_PATH = Path("/Users/mds8301/Desktop/temp")
-    MAIN_PATH = Path(
-        "/home/mds8301/Gaby_raw_data/processed_full_recording_unlabled_data"
-    )  # quest
+    MAIN_PATH = Path("/Users/mds8301/Desktop/temp")
+    # MAIN_PATH = Path(
+    #     "/home/mds8301/Gaby_raw_data/processed_full_recording_unlabled_data"
+    # )  # quest
     data_path = MAIN_PATH / "dopamine_full_timeseries_array.pt"
 
     log.info(f"Loading data from {data_path}")
