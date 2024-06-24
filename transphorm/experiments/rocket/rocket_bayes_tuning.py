@@ -31,10 +31,12 @@ def set_hypertune_configs():
     return configs
 
 
-def load_data(path):
+def load_data(path, downsample_factor = 1):
     data = load_py_data_to_np(path)
     X = data[:, 1:]
     y = data[:, 0]
+    if downsample_factor != 1:
+        X = X[:, ::downsample_factor]
     return X, y
 
 
@@ -79,12 +81,13 @@ def main():
          "/home/mds8301/Gaby_raw_data/processed_full_recording_unlabled_data"
      )  # quest
     data_path = MAIN_PATH / "dopamine_full_timeseries_array.pt"
+    DOWNSAMPLE_FACTOR = 100
 
     log.info(f"Loading data from {data_path}")
 
     """ load data"""
 
-    X, y = load_data(data_path)
+    X, y = load_data(data_path, downsample_factor= DOWNSAMPLE_FACTOR)
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.3, random_state=42
     )
