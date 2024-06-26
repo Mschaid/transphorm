@@ -24,6 +24,36 @@ logger.addHandler(handler)
 # read data functions and strategy used by fetchers
 
 
+def get_ts_cols(df):
+    ts_list = ["CueA", "ShkA", "AvdA", "EspA", "CueB", "ShkB", "AvdB", "EspB"]
+    columns = df.columns
+    return np.intersect1d(ts_list, columns).tolist()
+
+
+def compute_hot_encoded_ts(
+    df: pl.DataFrame, col: str, tolerance: float = 0.00045
+) -> np.array:
+    # fetch time array
+    time = df["time"].to_numpy()
+    # filter col timestamps and create np array
+    col_timestamps = df.filter(pl.col(col) > 0)[col].to_numpy()
+    # create matrix of tolerance values
+    diff = time[:, np.newaxis] - col_timestamps
+    encoded_ts = np.any(np.abs(diff) <= tolerance, axis=1).astype(int)
+    return encoded_ts
+
+
+def create_encoded_ts_df(df):
+    og_ts = get_ts_cols(df)
+    new_cols = [f"{ts}_encoded" for ts in og_ts]
+    encoded_ts_cols = {
+        new_ts: compute_hot_encoded_ts(df, ts) for new_ts, ts in zip(new_cols, og_ts)
+    }
+    encoded_ts_cols["time"] = df["time"]
+    timestamps = pl.DataFrame(encoded_ts_cols)
+    return df.join(timestamps, on="time")
+
+
 def filter_metadata_keys_for_keywords(*keywords: str, metadata: dict) -> List[str]:
     """filters dictionary for keyowords in the keys and returns a flat list of the values of the filtered keys"""
     filtered_data = {
@@ -201,10 +231,22 @@ class GuppyDataFetcher:
             self._timeseries_dataframe = pl.DataFrame(padded_dict)
         return self._timeseries_dataframe
 
+    def compute_time(self):
+        self.timeseries_dataframe = self.timeseries_dataframe.with_columns(
+            time=np.linspace(
+                0,
+                self.timeseries_dataframe.shape[0] / 1070,
+                self.timeseries_dataframe.shape[0],
+            )
+        )
+
+    def encode_timestamps(self):
+        self.timeseries_dataframe = create_encoded_ts_df(self.timeseries_dataframe)
+
     @property
     def timeseries_dataframe(self):
         try:
-            assert not self._timeseries_dataframe is None
+            assert self._timeseries_dataframe is not None
         except AssertionError:
             raise AssertionError(
                 "you have not loaded the dataframe yet, call load_timeseries_dataframe first"
@@ -229,4 +271,6 @@ def guppy_processing_strategy(fetcher: GuppyDataFetcher):
     fetcher.load_timeseries_data()
     fetcher.load_timeseries_dataframe()
     fetcher.load_categorical_data_into_ts_dataframe()
+    fetcher.compute_time()
+    fetcher.encode_timestamps()
     fetcher.write_to_parquet()
