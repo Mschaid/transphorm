@@ -17,12 +17,12 @@ class AADataModule(L.LightningDataModule):
     def store_input_size(self, value):
         self.input_size = value
 
-    def prepare_data(self):
+    def prepare_data(self, down_sample_factor=1):
         data = torch.load(self.main_path)
 
         data = data[~torch.isnan(data[:, 0])]
 
-        features = data[:, 1:][:, ::25]
+        features = data[:, 1:][:, ::down_sample_factor]
         labels = data[:, 0]
 
         input_size = features[0].shape[0]

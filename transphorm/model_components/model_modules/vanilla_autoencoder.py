@@ -25,8 +25,10 @@ class Encoder(nn.Module):
         self.smallest_layer = smallest_layer
         self.linear_layers = nn.Sequential(
             nn.Linear(seq_length, 512),
+            nn.Dropout(),
             nn.ReLU(),
             nn.Linear(512, 256),
+            nn.Dropout(),
             nn.ReLU(),
             nn.Linear(256, smallest_layer),
         )
@@ -90,19 +92,20 @@ class VanillaAutoEncoder(L.LightningModule):
 
     def _common_step(self, batch, batch_idx):
         X = batch[0]
-        reconstruct = self.forward(X)
-        loss = self.loss_fn(reconstruct, X)
-        return loss, reconstruct
+        encoded = self.encoder(X)
+        x_hat = self.decoder(encoded)
+        loss = self.loss_fn(x_hat, X)
+        return loss
 
     def training_step(self, batch, batch_idx):
-        loss, X_rec = self._common_step(batch, batch_idx)
-        self.log("Training loss", loss, on_step=False, on_epoch=True, prog_bar=True)
+        loss = self._common_step(batch, batch_idx)
+        self.log("Training loss", loss, on_step=False, on_epoch=True, prog_bar=False)
 
         return loss
 
     def validation_step(self, batch, batch_idx):
-        loss, X_rec = self._common_step(batch, batch_idx)
-        self.log("Validation loss", loss, on_step=False, on_epoch=True, prog_bar=True)
+        loss = self._common_step(batch, batch_idx)
+        self.log("Validation loss", loss, on_step=False, on_epoch=True, prog_bar=False)
         return loss
 
     def _plot_example_trace(self, X):

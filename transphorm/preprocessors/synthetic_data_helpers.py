@@ -1,102 +1,43 @@
-import torch
+import numpy as np
 
 
-def make_sinwaves(num_instances, num_points):
-    x = torch.linspace(0, torch.pi, num_points)
+def create_pulse_arrays():
+    n = np.zeros(1000)
+    k = np.zeros(1000)
 
-    # Initialize an empty tensor to hold the sine waves
-    sine_waves = torch.empty(num_instances, num_points)
+    # Choose a random number of indices to set to 1 in n
+    n_indices = np.random.choice(1000, size=np.random.randint(1, 10), replace=False)
+    n[n_indices] = 1
 
-    # Generate the sine waves
-    for i in range(num_instances):
-        frequency = i + 1  # Frequency ranges from 1 to num_instances
-        sine_wave = torch.sin(frequency * x)
-        sine_waves[i] = sine_wave
-    return sine_waves
-
-
-def make_sawtooths(num_instances, num_points):
-    x = torch.linspace(0, 1, num_points)
-
-    # Initialize an empty tensor to hold the sine waves
-    saw_tooths = torch.empty(num_instances, num_points)
-
-    # Generate the sine waves
-    for i in range(num_instances):
-        frequency = i + 1  # Frequency ranges from 1 to num_instances
-        saw_tooth = (x * 10 * frequency) % 1
-        saw_tooths[i] = saw_tooth
-    return saw_tooths
+    # Choose a random number of indices to set to 1 in k
+    k_indices = np.random.choice(1000, size=np.random.randint(1, 10), replace=False)
+    k[k_indices] = 1
+    return n, k
 
 
-def make_random_lines(num_instances, num_points):
-    x = torch.linspace(0, 1, num_points)
-
-    # Initialize an empty tensor to hold the random lines
-    random_lines = torch.empty(num_instances, num_points)
-
-    # Generate the random lines
-    for i in range(num_instances):
-        slope = torch.randn(1)[0] * 2 - 1  # Random slope
-        intercept = torch.randn(1)[0] * 2 - 1  # Random intercept
-        line = slope * x + intercept
-        random_lines[i] = line
-    return random_lines
-
-
-def make_data():
-    num_instances = 10000
-    num_points = 1000
-    saw_tooths = make_sawtooths(num_instances=num_instances, num_points=num_points)
-    saw_tooth_lables = torch.zeros(num_instances, dtype=torch.float32)
-
-    # sin_waves = make_sinwaves(num_instances=num_instances, num_points=num_points)
-    random_lines = make_random_lines(num_instances=num_instances, num_points=num_points)
-    random_lines_labels = torch.ones(num_instances, dtype=torch.float32)
-
-    features = torch.concatenate((saw_tooths, random_lines))
-    labels = torch.concatenate((saw_tooth_lables, random_lines_labels)).unsqueeze(1)
-    return features, labels
+def create_pulse_dip_array(n, k, decay_order=0.9, duration=25):
+    output = np.zeros(1000)  # initialize output array with zeros
+    for i in range(1000):
+        if n[i] == 1:
+            for j in range(max(0, i), min(1000, i + duration + 1)):
+                output[j] = np.exp(
+                    -(((j - i) / duration) ** decay_order)
+                )  # pulse with polynomial decay
+        elif k[i] == 1:
+            for j in range(max(0, i), min(1000, i + duration + 1)):
+                output[j] = -np.exp(
+                    -(((j - i) / duration) ** decay_order)
+                )  # dip with polynomial decay
+    noise = np.random.normal(0, 0.2, 1000)
+    return output + noise
 
 
-""" Custom dataset objects"""
+def create_signal_recording():
+    n, k = create_pulse_arrays()
+    s = create_pulse_dip_array(n, k)
+    r = np.vstack([s, n, k])
+    return r
 
 
-class TestTSDataModule(L.LightningDataModule):
-    def __init__(self, batch_size, num_workers=1):
-        super().__init__()
-        self.batch_size = batch_size
-        self.num_workers = num_workers
-
-    def prepare_data(self):
-        features, labels = make_data()
-        features = features.view(-1, 1, 1000)
-        self.data = TensorDataset(features, labels)
-
-    def setup(self, stage):
-        self.train, self.val, self.test = random_split(self.data, [0.7, 0.15, 0.15])
-
-    def train_dataloader(self):
-        return DataLoader(
-            self.train,
-            batch_size=self.batch_size,
-            num_workers=self.num_workers,
-            shuffle=True,
-            persistent_workers=True,
-        )
-
-    def val_dataloader(self):
-        return DataLoader(
-            self.val,
-            batch_size=self.batch_size,
-            num_workers=self.num_workers,
-            shuffle=False,
-        )
-
-    def test_dataloader(self):
-        return DataLoader(
-            self.test,
-            batch_size=self.batch_size,
-            num_workers=self.num_workers,
-            shuffle=False,
-        )
+def create_dataset(num_samples):
+    return np.array([create_signal_recording() for _ in range(num_samples)])
