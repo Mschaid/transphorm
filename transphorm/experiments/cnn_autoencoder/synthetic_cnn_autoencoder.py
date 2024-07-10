@@ -21,6 +21,7 @@ from transphorm.model_components.model_modules import (
 
 
 def init_comet_logger():
+    load_dotenv()
     COMET_API_KEY = os.getenv("COMET_API_KEY")
     logger = CometLogger(
         api_key=COMET_API_KEY,
