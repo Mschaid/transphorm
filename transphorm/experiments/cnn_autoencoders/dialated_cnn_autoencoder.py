@@ -27,6 +27,7 @@ if torch.backends.mps.is_available():
     os.environ["PYTORCH_ENABLE_MPS_FALLBACK"] = "1"
 
 
+
 @dataclass
 class ModelConfig:
     encoder: str = "cnn"
@@ -39,7 +40,6 @@ class ModelConfig:
 
 
 def init_comet_logger(experiment_name: str):
-    load_dotenv()
     COMET_API_KEY = os.getenv("COMET_API_KEY")
     logger = CometLogger(
         api_key=COMET_API_KEY,
@@ -90,14 +90,15 @@ def train_model(
 
 
 def main():
-    DATA_PATH = "/Users/mds8301/Desktop/temp/synthetic_dataset.pt"
+    load_dotenv()
+    DATA_PATH = os.getenv('SYNTHETIC_DATA_PATH')
+    LOG_DIR = os.getenv(QUEST_LIGHTNING_LOG_DIR)
     model_config = ModelConfig(
         encoder="branching_dilated_cnn_w_attention",
         decoder="branching_dilated_cnn_w_attention",
         experiment_name="branching_dilated_cnn_w_attention_v1",
     )
 
-    LOG_DIR = Path("/Users/mds8301/Development/transphorm/models/experiments")
 
     logger = init_comet_logger(model_config.experiment_name)
     logger.log_hyperparams(model_config.__dict__)

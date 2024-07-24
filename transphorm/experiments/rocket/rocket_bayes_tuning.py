@@ -77,7 +77,7 @@ def main():
     log = structlog.get_logger()
     PROJECT_NAME = "rocket_classifier_bayes_tuning"
    #  MAIN_PATH = Path("/Users/mds8301/Desktop/temp")
-     MAIN_PATH = Path(
+    MAIN_PATH = Path(
          "/home/mds8301/Gaby_raw_data/processed_full_recording_unlabled_data"
      )  # quest
     data_path = MAIN_PATH / "dopamine_full_timeseries_array.pt"

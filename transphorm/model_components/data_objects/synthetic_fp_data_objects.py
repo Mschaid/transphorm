@@ -1,7 +1,6 @@
 from lightning.pytorch.utilities.types import TRAIN_DATALOADERS
 import matplotlib.pyplot as plt
 import numpy as np
-from IPython import embed
 from torch.utils.data import DataLoader, TensorDataset, random_split
 from pathlib import Path
 import torch
