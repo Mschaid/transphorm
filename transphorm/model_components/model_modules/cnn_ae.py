@@ -54,13 +54,13 @@ class CNNDecoder(nn.Module):
 
 
 class AutoEncoder(L.LightningModule):
-    def __init__(self, encoder, decoder, optimizer):
+    def __init__(self, encoder, decoder, optimizer, learning_rate):
         super().__init__()
         self.encoder = encoder()
         self.decoder = decoder()
         self.optimizer = optimizer
         self.loss_fn = nn.MSELoss()
-
+        self.learning_rate = learning_rate
         self.save_hyperparameters(ignore=["encoder", "decoder"])
 
         self.train_loss = []
@@ -72,7 +72,7 @@ class AutoEncoder(L.LightningModule):
         return x_recon
 
     def configure_optimizers(self):
-        optimizer = self.optimizer(self.parameters(), lr=1e-3)
+        optimizer = self.optimizer(self.parameters(), lr=self.learning_rate)
         return optimizer
 
     def _common_step(self, batch, batch_idx):
@@ -95,12 +95,12 @@ class AutoEncoder(L.LightningModule):
         self.val_loss.append(loss)
         return loss
 
-    def on_train_epoch_end(self) -> None:
-        avg_loss = torch.Tensor(self.train_loss)
-        print(f"training loss : {avg_loss.mean()}")
-        self.train_loss = []
+    # def on_train_epoch_end(self) -> None:
+    #     avg_loss = torch.Tensor(self.train_loss)
+    #     print(f"training loss : {avg_loss.mean()}")
+    #     self.train_loss = []
 
-    def on_validation_epoch_end(self) -> None:
-        avg_loss = torch.Tensor(self.val_loss)
-        print(f"val loss : {avg_loss.mean()}")
-        self.val_loss = []
+    # def on_validation_epoch_end(self) -> None:
+    #     avg_loss = torch.Tensor(self.val_loss)
+    #     print(f"val loss : {avg_loss.mean()}")
+    #     self.val_loss = []
