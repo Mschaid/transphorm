@@ -80,7 +80,7 @@ def train_model(
     )
     trainer = L.Trainer(
         accelerator="gpu",
-        devices="auto",
+        devices= 1,
         max_epochs=model_configs.epochs,
         logger=logger,
         default_root_dir=root_dir,
@@ -92,7 +92,7 @@ def train_model(
 def main():
     load_dotenv()
     DATA_PATH = os.getenv('SYNTHETIC_DATA_PATH')
-    LOG_DIR = os.getenv(QUEST_LIGHTNING_LOG_DIR)
+    LOG_DIR = os.getenv("QUEST_LIGHTNING_LOG_DIR")
     model_config = ModelConfig(
         encoder="branching_dilated_cnn_w_attention",
         decoder="branching_dilated_cnn_w_attention",
