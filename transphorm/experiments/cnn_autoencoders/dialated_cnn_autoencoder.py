@@ -27,14 +27,13 @@ if torch.backends.mps.is_available():
     os.environ["PYTORCH_ENABLE_MPS_FALLBACK"] = "1"
 
 
-
 @dataclass
 class ModelConfig:
     encoder: str = "cnn"
     decoder: str = "cnn"
     optimizer: str = "adam"
     experiment_name: str = "unnamed"
-    epochs: int = 1000
+    epochs: int = 3000
     learning_rate: float = 1e-4
     batch_size: int = 32
 
@@ -80,7 +79,7 @@ def train_model(
     )
     trainer = L.Trainer(
         accelerator="gpu",
-        devices= 1,
+        devices=1,
         max_epochs=model_configs.epochs,
         logger=logger,
         default_root_dir=root_dir,
@@ -91,14 +90,13 @@ def train_model(
 
 def main():
     load_dotenv()
-    DATA_PATH = os.getenv('SYNTHETIC_DATA_PATH')
+    DATA_PATH = os.getenv("SYNTHETIC_DATA_PATH")
     LOG_DIR = os.getenv("QUEST_LIGHTNING_LOG_DIR")
     model_config = ModelConfig(
         encoder="branching_dilated_cnn_w_attention",
         decoder="branching_dilated_cnn_w_attention",
-        experiment_name="branching_dilated_cnn_w_attention_v1",
+        experiment_name="branching_dilated_cnn_w_attention_v2",
     )
-
 
     logger = init_comet_logger(model_config.experiment_name)
     logger.log_hyperparams(model_config.__dict__)
