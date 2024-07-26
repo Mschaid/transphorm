@@ -9,6 +9,7 @@ from comet_ml import Experiment
 import torch
 from dotenv import load_dotenv
 from pytorch_lightning.loggers import CometLogger
+from comet_ml.integration.pytorch import watch
 from torch import nn
 from torch.utils.data import DataLoader, TensorDataset
 from lightning.pytorch.callbacks import EarlyStopping, ModelCheckpoint
@@ -33,7 +34,7 @@ class ModelConfig:
     decoder: str = "cnn"
     optimizer: str = "adam"
     experiment_name: str = "unnamed"
-    epochs: int = 3000
+    epochs: int = 1000
     learning_rate: float = 1e-4
     batch_size: int = 32
 
@@ -57,13 +58,15 @@ def load_data_module(data_path: Path, batch_size: int = 32) -> L.LightningModule
     return datamod
 
 
-def build_model(model_config: ModelConfig) -> AutoEncoder:
+def build_model(model_config: ModelConfig, call_watch=True) -> AutoEncoder:
     ae = AutoEncoder(
         encoder=BranchingCNNEncoder(),
         decoder=BranchingCNNDecoder(),
         optimizer=torch.optim.Adam,
         learning_rate=model_config.learning_rate,
     )
+    if call_watch:
+        watch(ae)
     return ae
 
 
@@ -95,7 +98,7 @@ def main():
     model_config = ModelConfig(
         encoder="branching_dilated_cnn_w_attention",
         decoder="branching_dilated_cnn_w_attention",
-        experiment_name="branching_dilated_cnn_w_attention_v2",
+        experiment_name="branching_dilated_cnn_w_attention_v3",
     )
 
     logger = init_comet_logger(model_config.experiment_name)
