@@ -29,7 +29,7 @@ class AutoEncoder(L.LightningModule):
         X = batch[0]
         x_hat = self.forward(X)
         loss = self.loss_fn(x_hat, X)
-
+        print(f" gradients are: {X.grad}")
         return loss
 
     def training_step(self, batch, batch_idx):

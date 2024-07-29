@@ -34,7 +34,7 @@ class ModelConfig:
     decoder: str = "cnn"
     optimizer: str = "adam"
     experiment_name: str = "unnamed"
-    epochs: int = 1000
+    epochs: int = 2
     learning_rate: float = 1e-4
     batch_size: int = 32
 
@@ -93,8 +93,8 @@ def train_model(
 
 def main():
     load_dotenv()
-    DATA_PATH = os.getenv("SYNTHETIC_DATA_PATH")
-    LOG_DIR = os.getenv("QUEST_LIGHTNING_LOG_DIR")
+    DATA_PATH = os.getenv("DATA_PATH")
+    LOG_DIR = os.getenv("LIGHTNING_LOG_DIR")
     model_config = ModelConfig(
         encoder="branching_dilated_cnn_w_attention",
         decoder="branching_dilated_cnn_w_attention",
