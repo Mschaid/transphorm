@@ -34,7 +34,7 @@ class ModelConfig:
     decoder: str = "cnn"
     optimizer: str = "adam"
     experiment_name: str = "unnamed"
-    epochs: int = 2
+    epochs: int = 1000
     learning_rate: float = 1e-4
     batch_size: int = 32
 
@@ -81,7 +81,7 @@ def train_model(
         filename=model_configs.experiment_name,
     )
     trainer = L.Trainer(
-        accelerator="gpu",
+        accelerator="cpu",
         devices=1,
         max_epochs=model_configs.epochs,
         logger=logger,
