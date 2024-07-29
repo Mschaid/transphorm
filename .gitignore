@@ -90,3 +90,8 @@ target/
 
 # ignore slurm outs
 .out
+
+# PyTorch checkpoint and model files
+ *.ckpt
+ *.pth
+ *.pt
