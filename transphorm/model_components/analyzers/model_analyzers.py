@@ -3,10 +3,13 @@ import lightning as L
 from typing import Literal
 import matplotlib.pyplot as plt
 
-from typing import Tuple
+from typing import Tuple, Protocol
 import numpy as np
 
 
+class ModelAnalyzer(Protocol):
+    def compute_random_inference(self): ...
+    def plot_data(self): ...
 class AutoEncoderAnalyzer:
     """
     A class for analyzing autoencoder models.

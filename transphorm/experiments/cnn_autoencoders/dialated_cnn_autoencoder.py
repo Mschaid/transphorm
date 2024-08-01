@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from typing import Literal
 
 import lightning as L
 import matplotlib.pyplot as plt
@@ -13,7 +14,7 @@ from comet_ml.integration.pytorch import watch
 from torch import nn
 from torch.utils.data import DataLoader, TensorDataset
 from lightning.pytorch.callbacks import EarlyStopping, ModelCheckpoint
-
+from transphorm.model_components.analyzers import AutoEncoderAnalyzer, ModelAnalyzer
 from transphorm.model_components.data_objects import SyntheticFPDataModule
 from transphorm.model_components.model_modules import (
     AutoEncoder,
