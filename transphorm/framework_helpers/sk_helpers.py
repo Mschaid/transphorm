@@ -13,6 +13,7 @@ from sklearn.model_selection import train_test_split
 
 from transphorm.model_components.data_objects import AATrialDataModule
 
+
 def load_py_data_to_np(path: Path):
     data = torch.load(path)
     data_no_na = data[~torch.isnan(data[:, 0])]
@@ -20,41 +21,36 @@ def load_py_data_to_np(path: Path):
     return data_np
 
 
-def split_data_reproduce(data: np.array, random_state: int = 42):
-
-    features = data[:, 1:]
-    labels = data[:, 0]
+def split_data_reproduce(
+    X, y: np.array, train_size=0.7, test_size=0.5, random_state: int = 42
+):
 
     X_train, X_, y_train, y_ = train_test_split(
-        features, labels, train_size=0.7, random_state=random_state
+        X, y, train_size=train_size, random_state=random_state
     )
     X_val, X_test, y_val, y_test = train_test_split(
-        X_, y_, test_size=0.5, random_state=random_state
+        X_, y_, test_size=test_size, random_state=random_state
     )
 
     return X_train, X_val, X_test, y_train, y_val, y_test
 
 
 # convert x to tensor
-def evaluate(y_train, y_train_pred, y_test, y_test_pred):
+def evaluate(y, y_pred):
     evals = {
-        "f1_score_test": f1_score(y_test, y_test_pred),
-        "accuracy_test": accuracy_score(y_test, y_test_pred),
-        "precision_test": precision_score(y_test, y_test_pred),
-        "recall_test": recall_score(y_test, y_test_pred),
-        "roc_auc_test": roc_auc_score(y_test, y_test_pred),
-        "confusion_matrix_test": confusion_matrix(y_test, y_test_pred),
-        "f1_score_train": f1_score(y_train, y_train_pred),
-        "accuracy_train": accuracy_score(y_train, y_train_pred),
-        "precision_train": precision_score(y_train, y_train_pred),
-        "recall_train": recall_score(y_train, y_train_pred),
-        "roc_auc_train": roc_auc_score(y_train, y_train_pred),
-        "confusion_matrix_train": confusion_matrix(y_train, y_train_pred),
+        "f1_score": f1_score(y, y_pred),
+        "accuracy": accuracy_score(y, y_pred),
+        "precision": precision_score(y, y_pred),
+        "recall": recall_score(y, y_pred),
+        "roc_auc": roc_auc_score(y, y_pred),
+        "confusion_matrix": confusion_matrix(y, y_pred),
     }
     return evals
-def dataloader_to_numpy(data: AATrialDataModule, path):
-    data = AATrialDataModule(path)
+
+
+def dataloader_to_numpy(path: Path, data_loader=AATrialDataModule):
+    data = data_loader(path)
     data.prepare_data()
     X = data.data[:][0].detach().numpy()
-    y = data.data[:][1].detach.numpy()
+    y = data.data[:][1].detach().numpy()
     return X, y
