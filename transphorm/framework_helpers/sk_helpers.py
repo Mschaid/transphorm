@@ -11,6 +11,7 @@ from sklearn.metrics import (
 )
 from sklearn.model_selection import train_test_split
 
+from transphorm.model_components.data_objects import AATrialDataModule
 
 def load_py_data_to_np(path: Path):
     data = torch.load(path)
@@ -51,3 +52,9 @@ def evaluate(y_train, y_train_pred, y_test, y_test_pred):
         "confusion_matrix_train": confusion_matrix(y_train, y_train_pred),
     }
     return evals
+def dataloader_to_numpy(data: AATrialDataModule, path):
+    data = AATrialDataModule(path)
+    data.prepare_data()
+    X = data.data[:][0].detach().numpy()
+    y = data.data[:][1].detach.numpy()
+    return X, y
