@@ -10,15 +10,24 @@ from transphorm.framework_helpers import (
 )
 from sktime.classification.deep_learning.lstmfcn import LSTMFCNClassifier
 import os
+from sklearn.metrics import confusion_matrix
+
+import joblib
 
 
 def build_model():
-    lstmfcn = LSTMFCNClassifier(n_epochs=500)
+    lstmfcn = LSTMFCNClassifier(n_epochs=2000, attention=True)
     return lstmfcn
 
 
+def save_model(model_dir, experiment_name, model):
+    joblib.dump(model, model_dir / f"{experiment_name}.pkl")
+
+
 def main():
-    MODEL_SAVE_DIR = Path()
+    MODEL_SAVE_DIR = Path(
+        "/Users/mds8301/Development/transphorm/models/sk/aa_classifiers"
+    )
 
     DATA_PATH = Path(os.getenv("TRIAL_DATA_PATH"))
     EXPERIMENT_NAME = "lstmfcn_aa_trial_v0"
@@ -56,12 +65,12 @@ def main():
         metrics = evaluate(y_test, y_test_pred)
         exp.log_metrics(metrics)
 
+    exp.log_confusion_matrix(y_true=y_test, y_predicted=y_test_pred)
+    save_model(MODEL_SAVE_DIR, EXPERIMENT_NAME, model)
 
-# validate model
 
 # save model` `
 
 
 if __name__ == "__main__":
-
     main()

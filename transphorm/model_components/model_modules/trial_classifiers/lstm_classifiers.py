@@ -11,7 +11,7 @@ class LSTMClassifer(nn.Module):
 
         self.lstm = nn.LSTM(input_size, hidden_size, num_layers, batch_first=True)
         self.batch_norm = nn.BatchNorm1d(hidden_size)
-        self.dropout = nn.Dropout1d(0.2)
+        # self.dropout = nn.Dropout1d(0.2)
 
         self.fc = nn.Linear(hidden_size, 1)
 
@@ -21,8 +21,9 @@ class LSTMClassifer(nn.Module):
         c0 = torch.zeros_like(h0).to(x.device)
 
         x_1, (h0, c0) = self.lstm(x, (h0, c0))
+
         batch_norm = self.batch_norm(h0[-1])
-        dropout = self.dropout(batch_norm)
-        out = self.fc(dropout)
+        # dropout = self.dropout(batch_norm)
+        out = self.fc(batch_norm)
 
         return out

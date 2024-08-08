@@ -1,4 +1,5 @@
 from typing import Tuple
+from lightning.pytorch.utilities.types import EVAL_DATALOADERS
 from torch.utils.data.dataset import random_split
 import torch
 import lightning as L
@@ -162,6 +163,9 @@ class AATrialDataModule(L.LightningDataModule):
             num_workers=self.num_workers,
             shuffle=False,
         )
+
+    def predict_dataloader(self):
+        return self.test_dataloader()
 
     @property
     def tensor_shape(self):
