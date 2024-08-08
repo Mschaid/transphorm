@@ -13,6 +13,8 @@ from lightning.pytorch.callbacks import EarlyStopping, ModelCheckpoint
 from transphorm.model_components.data_objects import AATrialDataModule
 from transphorm.model_components.model_modules import LSTMClassifer, TrialClassifer
 from dotenv import load_dotenv
+from torchmetrics import ConfusionMatrix
+from comet_ml.integration.pytorch import watch
 
 
 @dataclass
@@ -84,6 +86,17 @@ def train(
         gradient_clip_val=1,
     )
     trainer.fit(model, data_mod)
+    return trainer, model
+
+
+def eval_confusion_matrix(model, data_mod, trainer, logger):
+    y_pred = trainer.predict(model, data_mod)
+    y_test = data_mod.test[:][1]
+    num_classes = 2
+    confmat = ConfusionMatrix(task="binary", num_classes=num_classes)
+    matrix = confmat(y_pred, y_test)
+    lables = [f"Class_{i}" for i in range(num_classes)]
+    return matrix.numpy(), lables
 
 
 def main():
@@ -100,14 +113,18 @@ def main():
     model = build_model(exp_configs)
     data_mod = load_data_module(exp_configs)
     logger.log_hyperparams(model.hparams)
+    watch(model)
 
-    train(
+    trainer, model = train(
         model=model,
         logger=logger,
         data_mod=data_mod,
         root_dir=LOG_DIR,
         exp_configs=exp_configs,
     )
+
+    confusion_matrix, labels = eval_confusion_matrix(model, data_mod, trainer, logger)
+    logger.experiment.log_confusion_matrix(confusion_matrix, labels)
 
 
 if __name__ == "__main__":

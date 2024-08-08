@@ -10,7 +10,7 @@ class TrialClassifer(L.LightningModule):
         super().__init__()
         self.model = model
         self.optimizer = optimizer
-        self.loss_fn = nn.CrossEntropyLoss()
+        self.loss_fn = nn.BCEWithLogitsLoss()
         self.learning_rate = learning_rate
 
         self.save_hyperparameters(ignore=['"classifier'])
@@ -72,7 +72,7 @@ class TrialClassifer(L.LightningModule):
 
     def _common_step(self, batch, batch_idx, group_log):
         X, y = batch
-        logits = self.forward(X).view(-1)
+        logits = self(X).view(-1)
         self.compute_metrics(y, logits, group_log)
         loss = self.loss_fn(logits, y)
         return loss
@@ -88,6 +88,12 @@ class TrialClassifer(L.LightningModule):
         self.log("val_loss", loss, on_step=False, on_epoch=True, logger=True)
 
         return loss
+
+    def predict_step(self, batch, batch_idx):
+        X, y = batch
+        logits = self(X).view(-1)
+        y_pred = self.classify(logits)
+        return y_pred
 
     def on_after_backward(self):
         # Check for vanishing or exploding gradients

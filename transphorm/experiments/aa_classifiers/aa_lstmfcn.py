@@ -11,15 +11,24 @@ from transphorm.framework_helpers import (
 )
 from sktime.classification.deep_learning.lstmfcn import LSTMFCNClassifier
 import os
+from sklearn.metrics import confusion_matrix
+
+import joblib
 
 
 def build_model():
-    lstmfcn = LSTMFCNClassifier(n_epochs=500)
+    lstmfcn = LSTMFCNClassifier(n_epochs=2000, attention=True)
     return lstmfcn
 
 
+def save_model(model_dir, experiment_name, model):
+    joblib.dump(model, model_dir / f"{experiment_name}.pkl")
+
+
 def main():
-    MODEL_SAVE_DIR = Path()
+    MODEL_SAVE_DIR = Path(
+        "/Users/mds8301/Development/transphorm/models/sk/aa_classifiers"
+    )
 
     DATA_PATH = Path(os.getenv("TRIAL_DATA_PATH"))
     EXPERIMENT_NAME = "lstmfcn_aa_trial_v0"
@@ -56,6 +65,7 @@ def main():
         metrics = evaluate(y_test, y_test_pred)
         exp.log_metrics(metrics)
 
+<<<<<<< HEAD
     # write confusion mat
     exp.log_confusion_matrix(y_test, y_test_pred)
 
@@ -63,10 +73,16 @@ def main():
     file_save_path = DATA_PATH /f"{EXPERIMENT_NAME}.pkl"
     with open(file_save_path, 'wb') as f:
         pickle.dump(model, f) 
+=======
+    exp.log_confusion_matrix(y_true=y_test, y_predicted=y_test_pred)
+    save_model(MODEL_SAVE_DIR, EXPERIMENT_NAME, model)
+
+
+# save model` `
+>>>>>>> 54a7556b7590f8fc2a6063e9eff0a1e1ef6d7279
 
     exp.log_model(EXPERIMENT_NAME, file_save_path.as_posix)
     exp.end()
 
 if __name__ == "__main__":
-
     main()
