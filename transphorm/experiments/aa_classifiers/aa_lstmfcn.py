@@ -30,12 +30,10 @@ def main():
     EXPERIMENT_NAME = "lstmfcn_aa_trial_v0"
     COMET_API_KEY = os.getenv("COMET_API_KEY")
 
-    MODEL_SAVE_PATH = MODEL_SAVE_DIR / f'{EXPERIMENT_NAME}.pkl'
+    MODEL_SAVE_PATH = MODEL_SAVE_DIR / f"{EXPERIMENT_NAME}.pkl"
     # set up comet experiment
     exp = comet_ml.Experiment(
-        api_key=COMET_API_KEY,
-        workspace="transphorm",
-        project_name="aa-classifiers"
+        api_key=COMET_API_KEY, workspace="transphorm", project_name="aa-classifiers"
     )
 
     # load data from pytroch loaders
@@ -63,12 +61,15 @@ def main():
         exp.log_metrics(metrics)
 
     # write confusion mat
-    exp.log_confusion_matrix(y_test, y_test_pred)
+    confmat = confusion_matrix(y_pred, y_test)
+    lables = ["avoid", "escape"]
+    exp.log_confusion_matrix(confmat, lables)
 
     # save model
     joblib.dump(model, MODEL_SAVE_PATH)
     exp.log_model(EXPERIMENT_NAME, MODEL_SAVE_PATH.as_posix())
     exp.end()
+
 
 if __name__ == "__main__":
     main()
