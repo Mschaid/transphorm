@@ -1,4 +1,5 @@
 from pathlib import Path
+import pickle
 import comet_ml
 from dotenv import load_dotenv
 from transphorm.model_components.data_objects import AATrialDataModule
@@ -28,9 +29,9 @@ def main():
     exp = comet_ml.Experiment(
         api_key=COMET_API_KEY,
         workspace="transphorm",
-        project_name="aa-classifiers",
-        experiment_key="aa_lstmfsn_v0",
+        project_name="aa-classifiers"
     )
+
     # load data from pytroch loaders
     X, y = dataloader_to_numpy(DATA_PATH)
 
@@ -44,7 +45,6 @@ def main():
     model.fit(X_train, y_train)
 
     # log training metrics
-
     y_train_pred = model.predict(X_train)
     with exp.train():
         metrics = evaluate(y_train, y_train_pred)
@@ -56,11 +56,16 @@ def main():
         metrics = evaluate(y_test, y_test_pred)
         exp.log_metrics(metrics)
 
+    # write confusion mat
+    exp.log_confusion_matrix(y_test, y_test_pred)
 
-# validate model
+    # save model`
+    file_save_path = DATA_PATH /f"{EXPERIMENT_NAME}.pkl"
+    with open(file_save_path, 'wb') as f:
+        pickle.dump(model, f) 
 
-# save model` `
-
+    exp.log_model(EXPERIMENT_NAME, file_save_path.as_posix)
+    exp.end()
 
 if __name__ == "__main__":
 
