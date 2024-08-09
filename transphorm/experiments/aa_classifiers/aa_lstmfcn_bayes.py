@@ -18,7 +18,6 @@ from comet_ml.integration.sklearn import log_model
 import structlog
 import joblib
 
-
 def set_hypertune_configs():
     configs = {
         "algorithm": "bayes",
@@ -33,27 +32,29 @@ def set_hypertune_configs():
         "parameters": {
             "epochs": [500, 1000, 1500, 2000],
             "dropout": [0.2, 0.4, 0.6, 0.8],
-            "kernel_sizes": [(32, 15, 9), (16, 10, 6), (8, 5, 3)],
-            "filter_sizes": [(128, 256, 128), (64, 128, 64)],
+            "kernel_sizes": ["32, 15, 9", "16, 10, 6", "8, 5, 3"],
+            "filter_sizes": ["128, 256, 128", "64, 128, 64"],
             "lstm_size": [2, 4, 6, 8, 10],
             "random_state": [42],
         },
     }
-
     return configs
 
 
+
 def load_data(path: Path):
-    X, y = load_py_data_to_np(path)
+    X, y = dataloader_to_numpy(path)
     X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
     return X_train, X_test, y_train, y_test
 
 
 def train(exp, X_train, X_test, y_train, y_test):
+    kernel_sizes = tuple(map(int, exp.get_parameter("kernel_sizes").split(",")))
+    filter_sizes = tuple(map(int, exp.get_parameter("filter_sizes").split(",")))
     model_params = {
         "dropout": exp.get_parameter("dropout"),
-        "kernel_sizes": exp.get_parameter("kernel_sizes"),
-        "filter_sizes": exp.get_parameter("filter_sizes"),
+        "kernel_sizes": kernel_sizes,
+        "filter_sizes": filter_sizes,
         "lstm_size": exp.get_parameter("lstm_size"),
         "random_state": exp.get_parameter("random_state"),
     }
@@ -89,7 +90,6 @@ def main():
     # EXPERIMENT_NAME = "lstmfcn_aa_trial_v0"
     COMET_API_KEY = os.getenv("COMET_API_KEY")
 
-    config = 
     log.info("loading data")
     X_train, X_test, y_train, y_test = load_data(DATA_PATH)
     log.info('configuring optimizer')
