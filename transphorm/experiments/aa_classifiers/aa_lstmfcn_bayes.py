@@ -59,7 +59,7 @@ def train(exp, X_train, X_test, y_train, y_test):
     }
     model = LSTMFCNClassifier(**model_params)
     model.fit(X_train, y_train)
-    y_pred = model.predict(X_test)∏
+    y_pred = model.predict(X_test)
     evals = evaluate(y_test, y_pred)
     model_name = f"lstmfcn_{exp.get_key()}"
     log_model(exp, model, model_name)
