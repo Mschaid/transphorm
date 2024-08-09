@@ -17,7 +17,7 @@ import joblib
 
 
 def build_model():
-    lstmfcn = LSTMFCNClassifier(n_epochs=2000, attention=True)
+    lstmfcn = LSTMFCNClassifier(n_epochs=2000, dropout=0.2)
     return lstmfcn
 
 
