@@ -43,7 +43,7 @@ def evaluate(y, y_pred):
         "precision": precision_score(y, y_pred),
         "recall": recall_score(y, y_pred),
         "roc_auc": roc_auc_score(y, y_pred),
-        "confusion_matrix": confusion_matrix(y, y_pred),
+        # "confusion_matrix": confusion_matrix(y, y_pred),
     }
     return evals
 
