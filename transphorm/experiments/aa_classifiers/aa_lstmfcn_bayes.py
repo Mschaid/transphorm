@@ -74,7 +74,10 @@ def run_optimizer(project_name, opt, X_train, X_test, y_train, y_test, log):
         model, evals, y_pred = train(exp, X_train, X_test, y_train, y_test)
         params = model.get_params()
         exp.log_parameters(params)
-        exp.log_metrics(evals)
+
+        for k, v in evals.items():
+            exp.log_metric(k, v)
+            
         exp.log_confusion_matrix(y_test, y_pred)
         exp.end()
 
