@@ -1,3 +1,4 @@
+import comet_ml
 import os
 from dataclasses import dataclass
 from pathlib import Path
@@ -15,6 +16,7 @@ from transphorm.model_components.model_modules import LSTMClassifer, TrialClassi
 from dotenv import load_dotenv
 from torchmetrics import ConfusionMatrix
 from comet_ml.integration.pytorch import watch
+from IPython import embed
 
 
 @dataclass
@@ -22,7 +24,7 @@ class ExperimentConfigs:
     data_path: str = ""
     experiment_name: str = "unamed"
 
-    epochs: int = 500
+    epochs: int = 1
     batch_size: int = 32
     learning_rate: int = 1e-4
     input_size: int = 6104
@@ -90,8 +92,11 @@ def train(
 
 
 def eval_confusion_matrix(model, data_mod, trainer, logger):
-    y_pred = trainer.predict(model, data_mod)
+    batch_pred = trainer.predict(model, data_mod)
+
+    y_pred = torch.cat(batch_pred)
     y_test = data_mod.test[:][1]
+
     num_classes = 2
     confmat = ConfusionMatrix(task="binary", num_classes=num_classes)
     matrix = confmat(y_pred, y_test)
@@ -122,9 +127,10 @@ def main():
         root_dir=LOG_DIR,
         exp_configs=exp_configs,
     )
+    embed()
 
     confusion_matrix, labels = eval_confusion_matrix(model, data_mod, trainer, logger)
-    logger.experiment.log_confusion_matrix(confusion_matrix, labels)
+    logger.experiment.log_confusion_matrix(matrix=confusion_matrix, labels=labels)
 
 
 if __name__ == "__main__":
