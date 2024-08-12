@@ -8,7 +8,7 @@ from transphorm.model_components.data_objects import AATrialDataModule
 from transphorm.framework_helpers import (
     dataloader_to_numpy,
     split_data_reproduce,
-    evaluate,
+    log_evaluaton,
     setup_comet_experimet,
 )
 from sktime.classification.deep_learning.lstmfcn import LSTMFCNClassifier
@@ -24,7 +24,7 @@ def set_hypertune_configs():
         "spec": {
             "maxCombo": 20,
             "objective": "maximize",
-            "metric": "accuracy",
+            "metric": "test_accuracy",
             "minSampleSize": 500,
             "retryLimit": 20,
             "retryAssignLimit": 0,
@@ -60,36 +60,38 @@ def train(exp, X_train, X_test, y_train, y_test):
     }
     model = LSTMFCNClassifier(**model_params)
     model.fit(X_train, y_train)
-    y_pred = model.predict(X_test)
-    evals = evaluate(y_test, y_pred)
+
     # model_name = f"lstmfcn_{exp.get_key()}"
     # log_model(exp, model, model_name)
-    return model, evals, y_pred
+    return model
 
 
-def run_optimizer(project_name, opt, X_train, X_test, y_train, y_test, log):
+
+def run_optimizer(project_name, opt, X_train, X_test, y_train, y_test, log, model_save_dir):
     for exp in opt.get_experiments(project_name=project_name, auto_metric_logging=True):
-        log.info(f"training {exp.get_key()}")
+        log.info(f"training {exp.name}")
 
-        model, evals, y_pred = train(exp, X_train, X_test, y_train, y_test)
+        model = train(exp, X_train, X_test, y_train, y_test)
         params = model.get_params()
         exp.log_parameters(params)
 
-        for k, v in evals.items():
-            exp.log_metric(k,v)
-        exp.log_confusion_matrix(y_test, y_pred)
+        train_pred = model.predict(X_train)
+        test_pred = model.predict(X_test)
+
+        log_evaluaton(y= y_train, y_pred= train_pred, data_cat= 'train', exp= exp)
+        log_evaluaton(y = y_test, y_pred = test_pred, data_cat = 'test', exp = exp)
+
+        joblib.dump(model, model_save_dir/f"{exp.name}.joblib")
         exp.end()
 
 
 def main():
+    load_dotenv()
     log = structlog.get_logger()
-    PROJECT_NAME = "lstmnfcn_bayes_tuning"
-    MODEL_SAVE_DIR = Path(
-        "/Users/mds8301/Development/transphorm/models/sk/aa_classifiers"
-    )
+    PROJECT_NAME = "lstmnfcn_bayes_tuning_5_day"
+    MODEL_SAVE_DIR = Path("/projects/p31961/transphorm/models/aa_classifiers/sk_models")
 
-    DATA_PATH = Path(os.getenv("TRIAL_DATA_PATH"))
-    # EXPERIMENT_NAME = "lstmfcn_aa_trial_v0"
+    DATA_PATH = Path(os.getenv("5_DAY_DATA_PATH"))
     COMET_API_KEY = os.getenv("COMET_API_KEY")
 
     log.info("loading data")
@@ -105,7 +107,8 @@ def main():
                    X_test=X_test,
                    y_train=y_train, 
                    y_test=y_test, 
-                   log=log)
+                   log=log, 
+                   model_save_dir=MODEL_SAVE_DIR)
     log.info("experiment complete")
 
 if __name__ == "__main__":

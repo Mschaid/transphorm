@@ -8,6 +8,7 @@ from sklearn.metrics import (
     recall_score,
     roc_auc_score,
     accuracy_score,
+    roc_curve
 )
 from sklearn.model_selection import train_test_split
 
@@ -36,16 +37,25 @@ def split_data_reproduce(
 
 
 # convert x to tensor
-def evaluate(y, y_pred):
+def log_evaluaton(y, y_pred, data_cat,exp):
     evals = {
-        "f1_score": f1_score(y, y_pred),
-        "accuracy": accuracy_score(y, y_pred),
-        "precision": precision_score(y, y_pred),
-        "recall": recall_score(y, y_pred),
-        "roc_auc": roc_auc_score(y, y_pred),
-        # "confusion_matrix": confusion_matrix(y, y_pred),
+        f"{data_cat}_f1_score": f1_score(y, y_pred),
+        f"{data_cat}_accuracy": accuracy_score(y, y_pred),
+        f"{data_cat}_precision": precision_score(y, y_pred),
+        f"{data_cat}_recall": recall_score(y, y_pred),
+        f"{data_cat}_roc_auc": roc_auc_score(y, y_pred),
+       
     }
-    return evals
+
+    for k, v in evals.items():
+        exp.log_metric(k,v)
+
+    conf_mat = confusion_matrix(y, y_pred)
+
+    exp.log_confusion_matrix(conf_mat, labels = ['Avoid', 'Escape'])
+
+    fpr, tpr, thresholds = roc_curve(y, y_pred)
+    exp.log_curve(f"{data_cat} ROC Curve", x= fpr, y=tpr)
 
 
 def dataloader_to_numpy(path: Path, data_loader=AATrialDataModule):
