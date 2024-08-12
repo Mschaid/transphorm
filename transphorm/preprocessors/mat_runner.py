@@ -13,7 +13,7 @@ logger.addHandler(handler)
 
 
 def main(path):
-    fetcher = MatFetcher(path)
+    fetcher = MatFetcher(path, day_filter=5)
     fetcher.load_data()
     logger.info("Data loaded")
 

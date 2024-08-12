@@ -106,12 +106,17 @@ class AATrialDataModule(L.LightningDataModule):
         filtered_data_copy = filtered_data.copy()
         return torch.Tensor(filtered_data_copy)
 
+    def _find_path(self, key_word):
+        for f in self.main_path.iterdir():
+            if key_word in f.name:
+                return f
+
     def prepare_data(
         self, time_window: Tuple[int, int] = (-1, 5), low_pass_filter=True
     ):
 
-        traces = torch.load(self.main_path / "traces.pt").to(torch.float32)
-        labels = torch.load(self.main_path / "labels.pt").to(torch.float32)
+        traces = torch.load(self._find_path("trace")).to(torch.float32)
+        labels = torch.load(self._find_path("label")).to(torch.float32)
 
         non_nan_idx = self._get_non_nan_idx(traces)
         non_na_traces = traces[non_nan_idx]

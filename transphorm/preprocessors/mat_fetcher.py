@@ -23,7 +23,7 @@ class MatFetcher:
         data (np.ndarray): Processed data from .mat files.
     """
 
-    def __init__(self, path: Union[str, Path]):
+    def __init__(self, path: Union[str, Path], day_filter: int = 0):
         """
         Initialize the MatFetcher object.
 
@@ -33,12 +33,22 @@ class MatFetcher:
         self.path = Path(path)
         self.mat_files: List[Path] = None
         self.data: np.ndarray = None
+        self.day_filter = day_filter
 
     def _fetch_mat_files(self) -> None:
         """
         Fetch all .mat files in the specified directory and its subdirectories.
         """
         files = [f for f in self.path.rglob("*.mat")]
+        self.mat_files = files
+
+    def _get_day_int(self, path: Path) -> int:
+        name = path.parent.name
+        day_int = int(name.strip("[dD]ay"))
+        return day_int
+
+    def _filter_by_day(self):
+        files = [f for f in self.mat_files if self._get_day_int(f) >= self.day_filter]
         self.mat_files = files
 
     def _label_behavior(self, label: str) -> Literal[0, 1]:
@@ -79,6 +89,8 @@ class MatFetcher:
         Load data from all .mat files in the specified directory.
         """
         self._fetch_mat_files()
+        self._filter_by_day()
+
         data_arrs = [self._read_mat_file(f) for f in self.mat_files]
         self.data = np.concatenate(data_arrs, axis=0)
 
@@ -86,8 +98,8 @@ class MatFetcher:
         labels = self.data[:, 0]
         traces = self.data[:, 1:]
 
-        labels_path = self.path / "labels.pt"
-        traces_path = self.path / "traces.pt"
+        labels_path = self.path / f"labels_start_day_{self.day_filter}.pt"
+        traces_path = self.path / f"traces_start_day_{self.day_filter}.pt"
 
         torch.save(torch.tensor(labels), labels_path)
         torch.save(torch.tensor(traces), traces_path)
