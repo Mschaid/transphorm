@@ -9,7 +9,7 @@ from sklearn.metrics import (
     auc,
     accuracy_score,
     balanced_accuracy_score,
-    roc_curve
+    roc_curve,
 )
 from sklearn.model_selection import train_test_split
 
@@ -37,33 +37,36 @@ def split_data_reproduce(
 
 
 # convert x to tensor
-def log_evaluaton(y, y_pred,y_pred_prob, data_cat,exp):
-
+def log_evaluaton(y, y_pred, y_pred_prob, data_cat, exp):
 
     conf_mat = confusion_matrix(y, y_pred)
 
-    exp.log_confusion_matrix(matrix = conf_mat, labels = ['Avoid', 'Escape'], title = f"{data_cat} Confusion Matrix")
+    exp.log_confusion_matrix(
+        matrix=conf_mat,
+        labels=["Avoid", "Escape"],
+        title=f"{data_cat} Confusion Matrix",
+    )
 
     fpr, tpr, _ = roc_curve(y, y_pred_prob)
-    exp.log_curve(f"{data_cat} ROC Curve", x= fpr, y=tpr)
-    
+    exp.log_curve(f"{data_cat} ROC Curve", x=fpr, y=tpr)
+
     evals = {
-        f"{data_cat}_f1_score": f1_score(y, y_pred),
-        f"{data_cat}_f1_score_weighted": f1_score(y, y_pred, average='weighted'),
-        f"{data_cat}_accuracy": accuracy_score(y, y_pred), 
-        f"{data_cat}_balanced_accuracy": balanced_accuracy_score(y, y_pred),
-        f"{data_cat}_precision_weighted": precision_score(y, y_pred, average='weighted'),
-        f"{data_cat}_precision": precision_score(y, y_pred),
-        f"{data_cat}_recall": recall_score(y, y_pred),
-        f"{data_cat}_recall_weighted": recall_score(y, y_pred, average='weighted'),
-        f"{data_cat}_roc_auc": auc(fpr, tpr)
-       
+        "f1_score": f1_score(y, y_pred),
+        "f1_score_weighted": f1_score(y, y_pred, average="weighted"),
+        "accuracy": accuracy_score(y, y_pred),
+        "balanced_accuracy": balanced_accuracy_score(y, y_pred),
+        "precision_weighted": precision_score(y, y_pred, average="weighted"),
+        "precision": precision_score(y, y_pred),
+        "recall": recall_score(y, y_pred),
+        "recall_weighted": recall_score(y, y_pred, average="weighted"),
+        "roc_auc": auc(fpr, tpr),
     }
 
     for k, v in evals.items():
-        exp.log_metric(k,v)
+        exp.log_metric(k, v)
 
-#comment
+
+# comment
 def dataloader_to_numpy(path: Path, data_loader=AATrialDataModule):
     data = data_loader(path)
     data.prepare_data()
