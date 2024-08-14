@@ -69,6 +69,8 @@ target/
 # VS Code
 .vscode/
 
+# Model stores
+models/
 # Spyder
 .spyproject/
 
@@ -96,3 +98,4 @@ target/
  *.pth
  *.pt
  *.joblib
+
