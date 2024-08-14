@@ -66,6 +66,70 @@ def log_evaluaton(y, y_pred, y_pred_prob, data_cat, exp):
         exp.log_metric(k, v)
 
 
+def log_train_evaluation(y, y_pred, y_pred_prob, exp):
+    data_cat = "train"
+
+    conf_mat = confusion_matrix(y, y_pred)
+
+    exp.log_confusion_matrix(
+        matrix=conf_mat,
+        labels=["Avoid", "Escape"],
+        title=f"{data_cat} Confusion Matrix",
+    )
+
+    fpr, tpr, _ = roc_curve(y, y_pred_prob)
+    exp.log_curve(f"{data_cat} ROC Curve", x=fpr, y=tpr)
+
+    train_evals = {
+        f"{data_cat}_f1_score": f1_score(y, y_pred),
+        f"{data_cat}_f1_score_weighted": f1_score(y, y_pred, average="weighted"),
+        f"{data_cat}_accuracy": accuracy_score(y, y_pred),
+        f"{data_cat}_balanced_accuracy": balanced_accuracy_score(y, y_pred),
+        f"{data_cat}_precision_weighted": precision_score(
+            y, y_pred, average="weighted"
+        ),
+        f"{data_cat}_precision": precision_score(y, y_pred),
+        f"{data_cat}_recall": recall_score(y, y_pred),
+        f"{data_cat}_recall_weighted": recall_score(y, y_pred, average="weighted"),
+        f"{data_cat}_roc_auc": auc(fpr, tpr),
+    }
+
+    for k, v in train_evals.items():
+        exp.log_metric(k, v)
+
+
+def log_test_evaluation(y, y_pred, y_pred_prob, exp):
+    data_cat = "test"
+
+    conf_mat = confusion_matrix(y, y_pred)
+
+    exp.log_confusion_matrix(
+        matrix=conf_mat,
+        labels=["Avoid", "Escape"],
+        title=f"{data_cat} Confusion Matrix",
+    )
+
+    fpr, tpr, _ = roc_curve(y, y_pred_prob)
+    exp.log_curve(f"{data_cat} ROC Curve", x=fpr, y=tpr)
+
+    test_evals = {
+        f"{data_cat}_f1_score": f1_score(y, y_pred),
+        f"{data_cat}_f1_score_weighted": f1_score(y, y_pred, average="weighted"),
+        f"{data_cat}_accuracy": accuracy_score(y, y_pred),
+        f"{data_cat}_balanced_accuracy": balanced_accuracy_score(y, y_pred),
+        f"{data_cat}_precision_weighted": precision_score(
+            y, y_pred, average="weighted"
+        ),
+        f"{data_cat}_precision": precision_score(y, y_pred),
+        f"{data_cat}_recall": recall_score(y, y_pred),
+        f"{data_cat}_recall_weighted": recall_score(y, y_pred, average="weighted"),
+        f"{data_cat}_roc_auc": auc(fpr, tpr),
+    }
+
+    for k, v in test_evals.items():
+        exp.log_metric(k, v)
+
+
 # comment
 def dataloader_to_numpy(path: Path, data_loader=AATrialDataModule):
     data = data_loader(path)

@@ -5,12 +5,11 @@ from dotenv import load_dotenv
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.utils import shuffle
-from transphorm.framework_helpers.sk_helpers import load_py_data_to_np
 from transphorm.model_components.data_objects import AATrialDataModule
 from transphorm.framework_helpers import (
     dataloader_to_numpy,
-    split_data_reproduce,
-    log_evaluaton,
+    log_train_evaluation,
+    log_test_evaluation,
     setup_comet_experimet,
 )
 from imblearn.over_sampling import RandomOverSampler
@@ -105,32 +104,30 @@ def run_optimizer(
         params = model.get_params()
         exp.log_parameters(params)
 
-        with exp.train():
-            train_pred = model.predict(X_train)
-            train_pred_prob = model.predict_proba(X_train)[:, 1]
-            log_evaluaton(
-                y=y_train,
-                y_pred=train_pred,
-                y_pred_prob=train_pred_prob,
-                data_cat="train",
-                exp=exp,
-            )
+        train_pred = model.predict(X_train)
+        train_pred_prob = model.predict_proba(X_train)[:, 1]
+        log_train_evaluation(
+            y=y_train,
+            y_pred=train_pred,
+            y_pred_prob=train_pred_prob,
+            exp=exp,
+        )
 
-        with exp.test():
-            test_pred = model.predict(X_test)
-            test_pred_prob = model.predict_proba(X_test)[:, 1]
-            log_evaluaton(
-                y=y_test,
-                y_pred=test_pred,
-                y_pred_prob=test_pred_prob,
-                data_cat="test",
-                exp=exp,
-            )
+        test_pred = model.predict(X_test)
+        test_pred_prob = model.predict_proba(X_test)[:, 1]
+        log_test_evaluation(
+            y=y_test,
+            y_pred=test_pred,
+            y_pred_prob=test_pred_prob,
+            data_cat="test",
+            exp=exp,
+        )
 
         joblib.dump(model, model_save_dir / f"{exp.name}.joblib")
         log_model(
             experiment=exp, model_name=exp.name, model=model, persistence_module=pickle
         )
+        exp.end()
 
 
 def main():
