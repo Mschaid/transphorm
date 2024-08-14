@@ -6,8 +6,9 @@ from sklearn.metrics import (
     f1_score,
     precision_score,
     recall_score,
-    roc_auc_score,
+    auc,
     accuracy_score,
+    balanced_accuracy_score,
     roc_curve
 )
 from sklearn.model_selection import train_test_split
@@ -32,30 +33,35 @@ def split_data_reproduce(
     X_val, X_test, y_val, y_test = train_test_split(
         X_, y_, test_size=test_size, random_state=random_state
     )
-
     return X_train, X_val, X_test, y_train, y_val, y_test
 
 
 # convert x to tensor
-def log_evaluaton(y, y_pred, data_cat,exp):
+def log_evaluaton(y, y_pred,y_pred_prob, data_cat,exp):
+
+
+    conf_mat = confusion_matrix(y, y_pred)
+
+    exp.log_confusion_matrix(matrix = conf_mat, labels = ['Avoid', 'Escape'], title = f"{data_cat} Confusion Matrix")
+
+    fpr, tpr, _ = roc_curve(y, y_pred_prob)
+    exp.log_curve(f"{data_cat} ROC Curve", x= fpr, y=tpr)
+    
     evals = {
         f"{data_cat}_f1_score": f1_score(y, y_pred),
-        f"{data_cat}_accuracy": accuracy_score(y, y_pred),
+        f"{data_cat}_f1_score_weighted": f1_score(y, y_pred, average='weighted'),
+        f"{data_cat}_accuracy": accuracy_score(y, y_pred), 
+        f"{data_cat}_balanced_accuracy": balanced_accuracy_score(y, y_pred),
+        f"{data_cat}_precision_weighted": precision_score(y, y_pred, average='weighted'),
         f"{data_cat}_precision": precision_score(y, y_pred),
         f"{data_cat}_recall": recall_score(y, y_pred),
-        f"{data_cat}_roc_auc": roc_auc_score(y, y_pred),
+        f"{data_cat}_recall_weighted": recall_score(y, y_pred, average='weighted'),
+        f"{data_cat}_roc_auc": auc(fpr, tpr)
        
     }
 
     for k, v in evals.items():
         exp.log_metric(k,v)
-
-    conf_mat = confusion_matrix(y, y_pred)
-
-    exp.log_confusion_matrix(conf_mat, labels = ['Avoid', 'Escape'])
-
-    fpr, tpr, thresholds = roc_curve(y, y_pred)
-    exp.log_curve(f"{data_cat} ROC Curve", x= fpr, y=tpr)
 
 
 def dataloader_to_numpy(path: Path, data_loader=AATrialDataModule):
