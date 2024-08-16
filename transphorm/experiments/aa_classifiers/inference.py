@@ -20,9 +20,7 @@ def main():
 
     X_train, X_test, y_train, y_test = load_data(DATA_PATH)
     model.fit(X_train, y_train)
-    model.save(
-        path="/projects/p31961/transphorm/models/aa_classifiers/sk_models/accepted_plywood_8946"
-    )
+
     log.info("running infernece")
     results = {
         "x_train": X_train,
@@ -37,6 +35,10 @@ def main():
     for k, v in results.items():
         np.save(path_to_save / f"{k}.npy", v)
     np.savez(path_to_save / "inference_results.npz", **results)
+
+    model.save(
+        path="/projects/p31961/transphorm/models/aa_classifiers/sk_models/accepted_plywood_8946"
+    )
 
     log.info("done")
 
