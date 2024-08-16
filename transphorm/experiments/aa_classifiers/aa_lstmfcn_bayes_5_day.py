@@ -68,18 +68,18 @@ def train(exp, X_train, y_train):
     filter_sizes = tuple(map(int, exp.get_parameter("filter_sizes").split(",")))
     classes = np.unique(y_train)
 
-    # oversample minority class
-    oversampler = RandomOverSampler(random_state=exp.get_parameter("random_state"))
-    X_resampled, y_resampled = oversampler.fit_resample(
-        X_train.reshape(X_train.shape[0], -1), y_train
-    )
-    # reshape x back to orignial
-    X_resampled = X_resampled.reshape(-1, X_train.shape[1], X_train.shape[2])
+    # over sample minority class
+    # oversampler = RandomOverSampler(random_state=exp.get_parameter("random_state"))
+    # X_resampled, y_resampled = oversampler.fit_resample(
+    #     X_train.reshape(X_train.shape[0], -1), y_train
+    # )
+    # # reshape x back to orignial
+    # X_resampled = X_resampled.reshape(-1, X_train.shape[1], X_train.shape[2])
 
-    # shuffle resampled ata
-    X_resampled, y_resampled = shuffle(
-        X_resampled, y_resampled, random_state=exp.get_parameter("random_state")
-    )
+    # # shuffle resampled ata
+    # X_resampled, y_resampled = shuffle(
+    #     X_resampled, y_resampled, random_state=exp.get_parameter("random_state")
+    # )
 
     model_params = {
         "dropout": exp.get_parameter("dropout"),
