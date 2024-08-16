@@ -7,6 +7,8 @@ import structlog
 from pathlib import Path
 import os
 
+from IPython import embed
+
 
 def main():
     log = structlog.get_logger()
@@ -17,6 +19,7 @@ def main():
     DATA_PATH = Path(os.getenv("DATA_PATH_5_DAY"))
     path_to_save = Path("/home/mds8301/data/gaby_data/over_day_5/eval_data")
     model = load(MODEL_PATH)
+    embed()
     X_train, X_test, y_train, y_test = load_data(DATA_PATH)
 
     log.info("running infernece")
