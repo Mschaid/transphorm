@@ -4,6 +4,8 @@ from dotenv import load_dotenv
 import numpy as np
 import logging
 import structlog
+from pathlib import Path
+import os
 
 
 def main():
