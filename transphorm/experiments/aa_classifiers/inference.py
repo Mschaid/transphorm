@@ -28,6 +28,5 @@ def main():
     }
 
     log.info("saving data")
-
-    np.savez(path_to_save, **results)
+    np.savez(path_to_save / "inference_results.npz", **results)
     log.info("done")
