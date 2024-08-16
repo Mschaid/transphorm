@@ -7,8 +7,6 @@ import structlog
 from pathlib import Path
 import os
 
-from IPython import embed
-
 
 def main():
     log = structlog.get_logger()
@@ -19,9 +17,12 @@ def main():
     DATA_PATH = Path(os.getenv("DATA_PATH_5_DAY"))
     path_to_save = Path("/home/mds8301/data/gaby_data/over_day_5/eval_data")
     model = load(MODEL_PATH)
-    embed()
-    X_train, X_test, y_train, y_test = load_data(DATA_PATH)
 
+    X_train, X_test, y_train, y_test = load_data(DATA_PATH)
+    model.fit(X_train, y_train)
+    model.save(
+        path="/projects/p31961/transphorm/models/aa_classifiers/sk_models/accepted_plywood_8946.zip"
+    )
     log.info("running infernece")
     results = {
         "x_train": X_train,
