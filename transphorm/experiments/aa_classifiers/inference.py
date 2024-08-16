@@ -32,3 +32,7 @@ def main():
     log.info("saving data")
     np.savez(path_to_save / "inference_results.npz", **results)
     log.info("done")
+
+
+if __name__ == "__main__":
+    main()
