@@ -22,7 +22,8 @@ import polars as pl
 
 # read data
 def load_data(path: Path, loader: AADataLoader) -> (np.ndarray, np.ndarray):
-    loader.load_data(path)
+    loader = loader(path)
+    loader.load_data()
     loader.prepare_data()
     return loader.x, loader.labels
 
@@ -114,8 +115,7 @@ def main():
     MODEL_SAVE_DIR.mkdir(parents=True, exist_ok=True)
     COMET_API_KEY = os.getenv("COMET_API_KEY")
     log.info("loading data")
-    loader = AADataLoader(FULL_RECORDING_PATH)
-    x, labels = load_data(loader)
+    x, labels = load_data(path=FULL_RECORDING_PATH, loader=AADataLoader)
     log.info("configuring optimizer")
     opt = comet_ml.Optimizer(config=define_search_space())
     run_optimizer(
