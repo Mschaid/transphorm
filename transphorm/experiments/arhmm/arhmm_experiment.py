@@ -110,6 +110,7 @@ def run_optimizer(project_name, opt, x, labels, log, model_save_dir):
 def main():
     load_dotenv()
     log = structlog.get_logger()
+    PROJECT_NAME = "arhmm"
     FULL_RECORDING_PATH = Path(os.getenv("FULL_RECORDING_PATH"))
     MODEL_SAVE_DIR = Path("/projects/p31961/transphorm/models/arhmm")
     MODEL_SAVE_DIR.mkdir(parents=True, exist_ok=True)
