@@ -91,8 +91,8 @@ def run_optimizer(project_name, opt, x, labels, log, model_save_dir):
     exp_configs = experiment_configs(project_name)
     for exp in opt.get_experiments(**exp_configs):
         model, lls = train_model(exp, x)
-        params = model.get_params()
-        exp.log_parameters(params)
+        # params = model.get_params()
+        # exp.log_parameters(params)
         exp.log_metric("lls_max", lls[-1])
 
         analyzer = ARHMMAnalyzer(model, lls, x, labels)
