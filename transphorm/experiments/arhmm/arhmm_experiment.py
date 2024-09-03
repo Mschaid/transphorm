@@ -45,7 +45,7 @@ def define_search_space():
             "K": [3, 4, 5, 6, 7, 8, 9, 10],
             "D": [1],
             "M": [0, 1],
-            "method": ["ar"],
+            "method": ["em"],
             "transitions": [
                 "standard",
                 "constrained",
@@ -54,7 +54,7 @@ def define_search_space():
                 "recurrent_only",
                 "nn_recurrent",
             ],
-            "observations": ["gaussian", "poisson", "bernoulli"],
+            "observations": ["autoregressive"],
             "num_iters": [10, 20, 30, 40],
         },
     }
