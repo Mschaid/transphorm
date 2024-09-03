@@ -54,7 +54,7 @@ def define_search_space():
                 "recurrent_only",
                 "nn_recurrent",
             ],
-            "observations": ["gaussian", "poisson", "bernoulli", "softmax"],
+            "observations": ["gaussian", "poisson", "bernoulli"],
             "num_iters": [10, 20, 30, 40],
         },
     }
