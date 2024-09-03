@@ -121,7 +121,9 @@ def main():
     MODEL_SAVE_DIR.mkdir(parents=True, exist_ok=True)
     COMET_API_KEY = os.getenv("COMET_API_KEY")
     log.info("loading data")
-    x, labels = load_data(path=FULL_RECORDING_PATH, loader=AADataLoader)
+    x, labels = load_data(
+        path=FULL_RECORDING_PATH, loader=AADataLoader, down_sample=True
+    )
     log.info("configuring optimizer")
     opt = comet_ml.Optimizer(config=define_search_space())
     run_optimizer(
