@@ -1,23 +1,20 @@
 import os
-import joblib
-import matplotlib.pyplot as plt
-import numpy as np
-import seaborn as sns
-import polars as pl
 from pathlib import Path
+from typing import List, Optional
+
+import comet_ml
+import joblib
+import numpy as np
+import polars as pl
+import ssm
 import structlog
 import torch
-import ssm
 from dotenv import load_dotenv
-import comet_ml
-from transphorm.framework_helpers import setup_comet_experimet
-from typing import List, Optional
-import torch
 from torch import Tensor
-from dynamax.utils.plotting import gradient_cmap
-from transphorm.preprocessors.loaders import AADataLoader
+
 from transphorm.analyzers import ARHMMAnalyzer
-import polars as pl
+from transphorm.framework_helpers import setup_comet_experimet
+from transphorm.preprocessors.loaders import AADataLoader
 
 
 # read data
