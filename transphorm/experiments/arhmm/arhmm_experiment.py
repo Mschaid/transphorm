@@ -21,8 +21,10 @@ import polars as pl
 
 
 # read data
-def load_data(path: Path, loader: AADataLoader) -> (np.ndarray, np.ndarray):
-    loader = loader(path)
+def load_data(
+    path: Path, loader: AADataLoader, down_sample: bool = False
+) -> (np.ndarray, np.ndarray):
+    loader = loader(path, down_sample)
     loader.load_data()
     loader.prepare_data()
     return loader.x, loader.labels
@@ -97,7 +99,7 @@ def run_optimizer(project_name, opt, x, labels, log, model_save_dir):
 
         analyzer = ARHMMAnalyzer(model, lls, x, labels)
         analyzer.compute_metrics()
-        exp.log_curve(lls)
+        exp.log_curve(name="Log Likehood", x=np.arange(len(lls)), y=lls)
         exp.log_figure("Mean State Durations", analyzer.plot_mean_state_duration())
         exp.log_figure("Example States", analyzer.plot_states())
         exp.log_table("mean_state_durations.csv", analyzer.agg_data)
@@ -112,6 +114,9 @@ def main():
     log = structlog.get_logger()
     PROJECT_NAME = "arhmm"
     FULL_RECORDING_PATH = Path(os.getenv("FULL_RECORDING_PATH"))
+    # FULL_RECORDING_PATH = Path(
+    #     "/Users/mds8301/Desktop/temp/dopamine_full_timeseries_array.pt"
+    # )
     MODEL_SAVE_DIR = Path("/projects/p31961/transphorm/models/arhmm")
     MODEL_SAVE_DIR.mkdir(parents=True, exist_ok=True)
     COMET_API_KEY = os.getenv("COMET_API_KEY")

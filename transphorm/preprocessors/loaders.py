@@ -19,7 +19,7 @@ class AADataLoader:
         labels (Optional[Tensor]): The labels extracted from the data.
     """
 
-    def __init__(self, path: str) -> None:
+    def __init__(self, path: str, down_sample: bool = False) -> None:
         """
         Initialize the AADataLoader with a file path.
 
@@ -30,6 +30,7 @@ class AADataLoader:
         self.data: Optional[Tensor] = None
         self.x: Optional[List[Tensor]] = None
         self.labels: Optional[Tensor] = None
+        self.down_sample = False
 
     def _clean_data(self) -> None:
         """
@@ -57,7 +58,10 @@ class AADataLoader:
         This method reshapes the feature data into a list of 2D tensors.
         """
         self._clean_data()
-        self.x = self.data[:, 1:]
+        if self.down_sample:
+            self.x = self.data[:, 1:][::100]
+        else:
+            self.x = self.data[:, 1:]
 
         self.x = [self.x[i].reshape(-1, 1) for i in range(self.x.shape[0])]
         self.labels = self.data[:, 0]
