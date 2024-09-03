@@ -45,7 +45,7 @@ def define_search_space():
             "K": [3, 4, 5, 6, 7, 8, 9, 10],
             "D": [1],
             "M": [0, 1],
-            "method": ["em"],
+            "method": ["em", "adam"],
             "transitions": [
                 "standard",
                 "constrained",
@@ -54,7 +54,11 @@ def define_search_space():
                 "recurrent_only",
                 "nn_recurrent",
             ],
-            "observations": ["autoregressive"],
+            "observations": [
+                "ar",
+                "robust_autoregressive",
+                "diagonal_robust_autoregressive",
+            ],
             "num_iters": [10, 20, 30, 40],
         },
     }
@@ -84,7 +88,7 @@ def train_model(exp, x):
     }
     num_iters = exp.get_parameter("num_iters")
     model = ssm.HMM(**model_params)
-    lls = model.fit(x, method="em", num_iters=num_iters)
+    lls = model.fit(x, method=exp.get_parameter("method"), num_iters=num_iters)
     return model, lls
 
 
