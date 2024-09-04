@@ -86,16 +86,17 @@ def train_model(exp, x):
     num_iters = exp.get_parameter("num_iters")
     model = ssm.HMM(**model_params)
     lls = model.fit(x, method=exp.get_parameter("method"), num_iters=num_iters)
-    return model, lls
+    return model, lls, model_params
 
 
 # analyze states
 def run_optimizer(project_name, opt, x, labels, log, model_save_dir):
     exp_configs = experiment_configs(project_name)
     for exp in opt.get_experiments(**exp_configs):
-        model, lls = train_model(exp, x)
+        model, lls, model_params = train_model(exp, x)
         # params = model.get_params()
         # exp.log_parameters(params)
+        exp.log_parameters(model_params)
         exp.log_metric("lls_max", lls[-1])
 
         analyzer = ARHMMAnalyzer(model, lls, x, labels)
