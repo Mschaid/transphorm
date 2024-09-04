@@ -30,7 +30,7 @@ class AADataLoader:
         self.data: Optional[Tensor] = None
         self.x: Optional[List[Tensor]] = None
         self.labels: Optional[Tensor] = None
-        self.down_sample = False
+        self.down_sample = down_sample
 
     def _clean_data(self) -> None:
         """
@@ -59,7 +59,7 @@ class AADataLoader:
         """
         self._clean_data()
         if self.down_sample:
-            self.x = self.data[:, 1:][::1000]
+            self.x = self.data[:, 1:][:, ::1000]
         else:
             self.x = self.data[:, 1:]
 

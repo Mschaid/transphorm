@@ -101,6 +101,7 @@ def run_optimizer(project_name, opt, x, labels, log, model_save_dir):
         analyzer = ARHMMAnalyzer(model, lls, x, labels)
         analyzer.compute_metrics()
         exp.log_curve(name="Log Likehood", x=np.arange(len(lls)), y=lls)
+        exp.log_figure("Log Likelihood", analyzer.plot_lls())
         exp.log_figure("Mean State Durations", analyzer.plot_mean_state_duration())
         exp.log_figure("Example States", analyzer.plot_states())
         exp.log_table("mean_state_durations.csv", analyzer.agg_data)

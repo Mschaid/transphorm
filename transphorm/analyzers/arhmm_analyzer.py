@@ -97,7 +97,7 @@ class ARHMMAnalyzer:
         ]
         self.agg_data = pl.concat(
             [pl.DataFrame(d) for d in agg_data], how="vertical"
-        ).melt(id_vars="label", variable_name="state", value_name="mean_duration")
+        ).melt(id_vars="label", variable_name="state", value_name="duration")
 
     def compute_metrics(self):
         self.compute_most_likely_states()
@@ -149,7 +149,7 @@ class ARHMMAnalyzer:
         fig = sns.barplot(
             self.agg_data.to_pandas(),
             x="state",
-            y="mean_duration",
+            y="duration",
             hue="label",
             errorbar="se",
         )
