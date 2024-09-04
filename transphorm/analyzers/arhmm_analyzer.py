@@ -104,6 +104,7 @@ class ARHMMAnalyzer:
         self.compute_aggregate_mean()
 
     def plot_lls(self):
+        plt.clf()
         fig, ax = plt.subplots()
         ax.plot(self.lls, label="EM 10 states")
         ax.set_xlabel("EM Iteration")
@@ -112,6 +113,7 @@ class ARHMMAnalyzer:
         return fig
 
     def plot_states(self):
+        plt.clf()
         sample_x, sample_z = self.get_sample_data()
 
         # Adjust the plot to cover the full vertical range of x_s
@@ -146,6 +148,7 @@ class ARHMMAnalyzer:
         return fig
 
     def plot_mean_state_duration(self):
+        plt.clf()
         fig = sns.barplot(
             self.agg_data.to_pandas(),
             x="state",
