@@ -59,7 +59,7 @@ class AADataLoader:
         """
         self._clean_data()
         if self.down_sample:
-            self.x = self.data[:, 1:][:, ::1000]
+            self.x = self.data[:, 1:][:, ::10]
         else:
             self.x = self.data[:, 1:]
 

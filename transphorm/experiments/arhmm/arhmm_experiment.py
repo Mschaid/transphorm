@@ -19,7 +19,7 @@ from transphorm.preprocessors.loaders import AADataLoader
 
 # read data
 def load_data(
-    path: Path, loader: AADataLoader, down_sample: bool = False
+    path: Path, loader: AADataLoader, down_sample: bool = True
 ) -> (np.ndarray, np.ndarray):
     loader = loader(path, down_sample)
     loader.load_data()
@@ -41,7 +41,7 @@ def define_search_space():
         "parameters": {
             "K": [3, 4, 5, 6, 7, 8, 9, 10],
             "D": [1],
-            "M": [0, 1],
+            "M": [1, 5, 10, 20, 50, 100],
             "method": ["em"],
             "transitions": [
                 "standard",
@@ -56,7 +56,7 @@ def define_search_space():
                 "robust_autoregressive",
                 "diagonal_robust_autoregressive",
             ],
-            "num_iters": [10, 20, 30, 40],
+            "num_iters": [10, 20, 30],
         },
     }
     return configs
