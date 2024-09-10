@@ -108,7 +108,7 @@ def run_optimizer(project_name, opt, x, labels, log, model_save_dir):
 def main():
     load_dotenv()
     log = structlog.get_logger()
-    PROJECT_NAME = "arhmm_2"
+    PROJECT_NAME = "hmm"
     FULL_RECORDING_PATH = Path(os.getenv("FULL_RECORDING_PATH"))
     # FULL_RECORDING_PATH = Path(
     #     "/Users/mds8301/Desktop/temp/dopamine_full_timeseries_array.pt"
