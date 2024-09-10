@@ -25,6 +25,7 @@ def load_data(
     loader = loader(path, low_pass=low_pass, down_sample=down_sample)
     loader.load_data()
     loader.prepare_data()
+    #! TODO return train and test
     return loader.x, loader.labels
 
 
@@ -95,6 +96,9 @@ def run_optimizer(project_name, opt, x, labels, log, model_save_dir):
         analyzer = ARHMMAnalyzer(model, lls, x, labels)
         analyzer.compute_metrics()
         exp.log_curve(name="Log Likehood", x=np.arange(len(lls)), y=lls)
+
+        #! TODO ADD ANALYSIS FOR TRAIN AND TEST
+
         exp.log_figure("Log Likelihood", analyzer.plot_lls())
         exp.log_figure("Mean State Durations", analyzer.plot_mean_state_duration())
         exp.log_figure("Example States", analyzer.plot_states())
@@ -133,3 +137,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+#! TODO save hmm experiment too
