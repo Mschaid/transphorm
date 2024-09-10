@@ -1,3 +1,4 @@
+from scipy import signal
 import torch
 from torch import Tensor
 from typing import List, Optional
@@ -27,10 +28,13 @@ class AADataLoader:
             path (str): The file path to the data.
         """
         self.path: str = path
-        self.data: Optional[Tensor] = None
-        self.x: Optional[List[Tensor]] = None
-        self.labels: Optional[Tensor] = None
+        self.data: Optional[np.ndarray] = None
+        self.x: Optional[np.ndarray] = None
+        self.train: Optional[List[np.ndarray]] = None
+        self.test: Optional[List[np.ndarray]] = None
+        self.labels: Optional[np.ndarray] = None
         self.down_sample = down_sample
+        self.low_pass = low_pass
 
     def _clean_data(self) -> None:
         """
@@ -51,17 +55,52 @@ class AADataLoader:
         """
         self.data = torch.load(self.path).detach().numpy()
 
+    def _apply_low_pass(
+        self, cutoff_frequency: float = 0.8, sampling_rate: float = 1000
+    ) -> None:
+        """
+        Apply a low pass filter to the data.
+        """
+        nyquist_frequency = 0.5 * sampling_rate
+        normalized_cutoff = cutoff_frequency / nyquist_frequency
+
+        # Design the Butterworth low-pass filter
+        b, a = signal.butter(N=2, Wn=normalized_cutoff, btype="low", analog=False)
+
+        # Apply the filter
+        self.x = signal.filtfilt(b, a, self.x, axis=1)
+
+    def _down_sample(self, factor: int = 100) -> None:
+        """
+        Down sample the data.
+        """
+        self.x = signal.decimate(self.x, factor, axis=1)
+
+    def _shape_for_arhmm(self, x) -> None:
+        return [x[i].reshape(-1, 1) for i in range(x.shape[0])]
+
     def prepare_data(self) -> None:
         """
         Prepare the loaded data for further processing.
 
         This method reshapes the feature data into a list of 2D tensors.
-        """
-        self._clean_data()
-        if self.down_sample:
-            self.x = self.data[:, 1:][:, ::10]
-        else:
-            self.x = self.data[:, 1:]
 
-        self.x = [self.x[i].reshape(-1, 1) for i in range(self.x.shape[0])]
+
+        """
+
+        self._clean_data()
+        self.x = self.data[:, 1:]
+        self.labels = self.data[:, 0]
+
+        if self.low_pass:
+            self._apply_low_pass()
+        if self.down_sample:
+            self._down_sample()
+
+        len_30_min = self.x.shape[1]
+        len_1_min = len_30_min // 30
+        training_idx = int(len_1_min * 25)
+
+        self.train = self._shape_for_arhmm(self.x[:, :training_idx])
+        self.test = self._shape_for_arhmm(self.x[:, training_idx:])
         self.labels = self.data[:, 0]

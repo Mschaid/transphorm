@@ -8,9 +8,10 @@ import numpy as np
 import polars as pl
 import ssm
 import structlog
-import torch
+
+import numpy as np
 from dotenv import load_dotenv
-from torch import Tensor
+
 
 from transphorm.analyzers import ARHMMAnalyzer
 from transphorm.framework_helpers import setup_comet_experimet
@@ -19,9 +20,9 @@ from transphorm.preprocessors.loaders import AADataLoader
 
 # read data
 def load_data(
-    path: Path, loader: AADataLoader, down_sample: bool = True
+    path: Path, loader: AADataLoader, down_sample: bool = True, low_pass: bool = True
 ) -> (np.ndarray, np.ndarray):
-    loader = loader(path, down_sample)
+    loader = loader(path, low_pass=low_pass, down_sample=down_sample)
     loader.load_data()
     loader.prepare_data()
     return loader.x, loader.labels
@@ -39,23 +40,15 @@ def define_search_space():
             "retryAssignLimit": 0,
         },
         "parameters": {
-            "K": [3, 4, 5, 6, 7, 8, 9, 10],
+            "K": [3, 4, 5, 6],
             "D": [1],
-            "M": [1, 5, 10, 20, 50, 100],
+            "M": [1, 2, 4, 6, 8, 10],
             "method": ["em"],
             "transitions": [
                 "standard",
-                "constrained",
                 "sticky",
-                "recurrent",
-                "recurrent_only",
-                "nn_recurrent",
             ],
-            "observations": [
-                "ar",
-                "robust_autoregressive",
-                "diagonal_robust_autoregressive",
-            ],
+            "observations": ["ar", "robust_autoregressive"],
             "num_iters": [10, 20, 30],
         },
     }
@@ -115,7 +108,7 @@ def run_optimizer(project_name, opt, x, labels, log, model_save_dir):
 def main():
     load_dotenv()
     log = structlog.get_logger()
-    PROJECT_NAME = "arhmm"
+    PROJECT_NAME = "arhmm_2"
     FULL_RECORDING_PATH = Path(os.getenv("FULL_RECORDING_PATH"))
     # FULL_RECORDING_PATH = Path(
     #     "/Users/mds8301/Desktop/temp/dopamine_full_timeseries_array.pt"
