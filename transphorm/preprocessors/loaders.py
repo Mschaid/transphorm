@@ -20,7 +20,9 @@ class AADataLoader:
         labels (Optional[Tensor]): The labels extracted from the data.
     """
 
-    def __init__(self, path: str, down_sample: bool = False) -> None:
+    def __init__(
+        self, path: str, down_sample: bool = False, low_pass: bool = False
+    ) -> None:
         """
         Initialize the AADataLoader with a file path.
 
