@@ -48,7 +48,7 @@ def define_search_space():
                 "standard",
                 "sticky",
             ],
-            "observations": ["ar", "robust_autoregressive"],
+            "observations": ["ar"],
             "num_iters": [10, 20, 30],
         },
     }
