@@ -93,7 +93,7 @@ def run_optimizer(project_name, opt, loader, log, model_save_dir):
         exp.log_curve(name="Log Likehood", x=np.arange(len(lls)), y=lls)
 
         exp.log_parameters(model.params)
-        exp.log_metrics(model.training_metrics)
+        exp.log_metrics(analyzer.training_metrics)
 
         exp.log_figure("Log Likelihood", analyzer.plot_lls())
         exp.log_figure("Mean State Durations", analyzer.plot_mean_state_duration())
