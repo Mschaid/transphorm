@@ -9,11 +9,11 @@
 
 #SBATCH --time=32:00:00
 
-#SBATCH --job-name='hmm_norm'
+#SBATCH --job-name='hmm_norm_longform'
 
-#SBATCH --output='hmm_norm.log'
+#SBATCH --output='hmm_norm_longform.log'
 
-JOB_NAME='hmm_norm'
+JOB_NAME='hmm_norm_longform'
 
 curl -X POST -H 'Content-type: application/json' --data '{"text":"'${JOB_NAME}' started"}' $SLACK_WEBHOOK
 source activate transphorm

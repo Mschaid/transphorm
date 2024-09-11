@@ -21,7 +21,11 @@ class AADataLoader:
     """
 
     def __init__(
-        self, path: str, down_sample: bool = False, low_pass: bool = False
+        self,
+        path: str,
+        down_sample: bool = False,
+        low_pass: bool = False,
+        down_sample_factor: int = 100,
     ) -> None:
         """
         Initialize the AADataLoader with a file path.
@@ -36,6 +40,7 @@ class AADataLoader:
         self.test: Optional[List[np.ndarray]] = None
         self.labels: Optional[np.ndarray] = None
         self.down_sample = down_sample
+        self.down_sample_factor = down_sample_factor
         self.low_pass = low_pass
 
     def _clean_data(self) -> None:
@@ -72,11 +77,11 @@ class AADataLoader:
         # Apply the filter
         self.x = signal.filtfilt(b, a, self.x, axis=1)
 
-    def _down_sample(self, factor: int = 100) -> None:
+    def _down_sample(self) -> None:
         """
         Down sample the data.
         """
-        self.x = signal.decimate(self.x, factor, axis=1)
+        self.x = signal.decimate(self.x, self.down_sample_factor, axis=1)
 
     def _shape_for_arhmm(self, x) -> None:
         return [x[i].reshape(-1, 1) for i in range(x.shape[0])]
