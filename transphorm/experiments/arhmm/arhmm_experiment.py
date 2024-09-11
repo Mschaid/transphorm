@@ -21,12 +21,12 @@ from transphorm.preprocessors.loaders import AADataLoader
 # read data
 def load_data(
     path: Path, loader: AADataLoader, down_sample: bool = True, low_pass: bool = True
-) -> (np.ndarray, np.ndarray):
+) -> (np.ndarray, np.ndarray, np.ndarray):
     loader = loader(path, low_pass=low_pass, down_sample=down_sample)
     loader.load_data()
     loader.prepare_data()
-    #! TODO return train and test
-    return loader.x, loader.labels
+
+    return loader
 
 
 def define_search_space():
@@ -80,20 +80,19 @@ def train_model(exp, x):
     num_iters = exp.get_parameter("num_iters")
     model = ssm.HMM(**model_params)
     lls = model.fit(x, method=exp.get_parameter("method"), num_iters=num_iters)
-    return model, lls, model_params
+    return model, lls
 
 
 # analyze states
-def run_optimizer(project_name, opt, x, labels, log, model_save_dir):
+def run_optimizer(project_name, opt, loader, log, model_save_dir):
     exp_configs = experiment_configs(project_name)
     for exp in opt.get_experiments(**exp_configs):
-        model, lls, model_params = train_model(exp, x)
-        # params = model.get_params()
-        # exp.log_parameters(params)
-        exp.log_parameters(model_params)
-        exp.log_metric("lls_max", lls[-1])
+        model, lls = train_model(exp, x)
 
-        analyzer = ARHMMAnalyzer(model, lls, x, labels)
+        exp.log_parameters(model.params)
+        exp.log_metrics(model.training_metrics)
+
+        analyzer = ARHMMAnalyzer(model, lls, loader)
         analyzer.compute_metrics()
         exp.log_curve(name="Log Likehood", x=np.arange(len(lls)), y=lls)
 
@@ -121,14 +120,13 @@ def main():
     MODEL_SAVE_DIR.mkdir(parents=True, exist_ok=True)
     COMET_API_KEY = os.getenv("COMET_API_KEY")
     log.info("loading data")
-    x, labels = load_data(path=FULL_RECORDING_PATH, loader=AADataLoader)
+    loader = load_data(path=FULL_RECORDING_PATH, loader=AADataLoader)
     log.info("configuring optimizer")
     opt = comet_ml.Optimizer(config=define_search_space())
     run_optimizer(
         project_name=PROJECT_NAME,
         opt=opt,
-        x=x,
-        labels=labels,
+        loader=loader,
         log=log,
         model_save_dir=MODEL_SAVE_DIR,
     )
@@ -137,5 +135,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-#! TODO save hmm experiment too

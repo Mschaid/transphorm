@@ -45,11 +45,13 @@ def gradient_cmap(colors, nsteps=256, bounds=None):
 
 
 class ARHMMAnalyzer:
-    def __init__(self, model, lls, x, labels):
+    def __init__(self, model, lls, loader):
         self.model = model
         self.lls = lls
-        self.x = x
-        self.labels = labels
+        self.loader = loader
+        self.train = loader.train
+        self.test = loader.test
+        self.labels = loader.labels
         self.z_hat_list = None
         self.z_hat_array = None
         self.x_array = None
@@ -57,13 +59,14 @@ class ARHMMAnalyzer:
         self.data_dict = None
         self.num_states = model.K
         self.agg_data = None
+        self.training_metrics = None
 
     def compute_most_likely_states(self):
         self.z_hat_list = [
-            self.model.most_likely_states(self.x[i]) for i in range(len(self.x))
+            self.model.most_likely_states(self.train[i]) for i in range(len(self.train))
         ]
         self.z_hat_array = np.array(self.z_hat_list)
-        self.x_array = np.array(self.x)
+        self.x_array = np.array(self.train)
         self.x_array = self.x_array.reshape(-1, self.x_array.shape[1])
 
     def get_sample_data(self):
@@ -102,6 +105,7 @@ class ARHMMAnalyzer:
     def compute_metrics(self):
         self.compute_most_likely_states()
         self.compute_aggregate_mean()
+        self.compute_training_metrics()
 
     def plot_lls(self):
         plt.clf()
@@ -111,6 +115,14 @@ class ARHMMAnalyzer:
         ax.set_ylabel("Log Probability")
         ax.legend(loc="lower right")
         return fig
+
+    def compute_training_metrics(self):
+        train_lls = self.model.log_likelihood(self.train)
+        test_lls = self.model.log_likelihood(self.test)
+        self.training_metrics = {
+            "train_lls": train_lls / len(self.train[0]),
+            "test_lls": test_lls / len(self.test[0]),
+        }
 
     def plot_states(self):
         plt.clf()
