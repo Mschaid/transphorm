@@ -95,6 +95,7 @@ def run_optimizer(project_name, opt, loader, log, model_save_dir):
         exp.log_parameters(model_params)
         exp.log_metric("train_lls", analyzer.training_metrics["train_lls"])
         exp.log_metric("test_lls", analyzer.training_metrics["test_lls"])
+        log.info(f"training metrics {analyzer.training_metrics}")
         log.info(f"train_lls: {analyzer.training_metrics['train_lls']}")
         log.info(f"test_lls: {analyzer.training_metrics['test_lls']}")
         exp.log_figure("Log Likelihood", analyzer.plot_lls())
