@@ -18,9 +18,18 @@ from transphorm.preprocessors.loaders import AADataLoader
 
 # read data
 def load_data(
-    path: Path, loader: AADataLoader, down_sample: bool = True, low_pass: bool = True
+    path: Path,
+    loader: AADataLoader,
+    down_sample: bool = True,
+    downsample_factor: int = 100,
+    low_pass: bool = True,
 ) -> (np.ndarray, np.ndarray, np.ndarray):
-    loader = loader(path, low_pass=low_pass, down_sample=down_sample)
+    loader = loader(
+        path,
+        down_sample=down_sample,
+        downsample_factor=downsample_factor,
+        low_pass=low_pass,
+    )
     loader.load_data()
     loader.prepare_data()
 
@@ -111,7 +120,7 @@ def run_optimizer(project_name, opt, loader, log, model_save_dir):
 def main():
     load_dotenv()
     log = structlog.get_logger()
-    PROJECT_NAME = "arhmm_2"
+    PROJECT_NAME = "arhmm_longform_1_10"
     FULL_RECORDING_PATH = Path(os.getenv("FULL_RECORDING_PATH"))
     # FULL_RECORDING_PATH = Path(
     #     "/Users/mds8301/Desktop/temp/dopamine_full_timeseries_array.pt"
@@ -120,7 +129,9 @@ def main():
     MODEL_SAVE_DIR.mkdir(parents=True, exist_ok=True)
     COMET_API_KEY = os.getenv("COMET_API_KEY")
     log.info("loading data")
-    loader = load_data(path=FULL_RECORDING_PATH, loader=AADataLoader)
+    loader = load_data(
+        path=FULL_RECORDING_PATH, loader=AADataLoader, downsample_factor=10
+    )
     log.info("configuring optimizer")
     opt = comet_ml.Optimizer(config=define_search_space())
     run_optimizer(
