@@ -48,7 +48,7 @@ def define_search_space():
                 "sticky",
             ],
             "observations": ["ar"],
-            "num_iters": [10, 20, 30],
+            "num_iters": [10, 20, 30, 40, 50],
         },
     }
     return configs
@@ -93,7 +93,8 @@ def run_optimizer(project_name, opt, loader, log, model_save_dir):
         exp.log_curve(name="Log Likehood", x=np.arange(len(lls)), y=lls)
 
         exp.log_parameters(model_params)
-        exp.log_metrics(analyzer.training_metrics)
+        for k, v in analyzer.training_metrics.items():
+            exp.log_metric(k, v)
 
         exp.log_figure("Log Likelihood", analyzer.plot_lls())
         exp.log_figure("Mean State Durations", analyzer.plot_mean_state_duration())
