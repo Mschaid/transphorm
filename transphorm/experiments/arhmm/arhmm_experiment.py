@@ -33,7 +33,7 @@ def define_search_space():
         "spec": {
             "maxCombo": 30,
             "objective": "maximize",
-            "metric": "lls_max",
+            "metric": "test_lls",
             "minSampleSize": 88,
             "retryLimit": 20,
             "retryAssignLimit": 0,
@@ -78,7 +78,7 @@ def train_model(exp, x):
     num_iters = exp.get_parameter("num_iters")
     model = ssm.HMM(**model_params)
     lls = model.fit(x, method=exp.get_parameter("method"), num_iters=num_iters)
-    return model, lls
+    return model, lls, model_params
 
 
 # analyze states
@@ -86,13 +86,13 @@ def run_optimizer(project_name, opt, loader, log, model_save_dir):
     exp_configs = experiment_configs(project_name)
     for exp in opt.get_experiments(**exp_configs):
         log.info(f"training {exp.name}")
-        model, lls = train_model(exp, loader.train)
+        model, lls, model_params = train_model(exp, loader.train)
 
         analyzer = ARHMMAnalyzer(model, lls, loader)
         analyzer.compute_metrics()
         exp.log_curve(name="Log Likehood", x=np.arange(len(lls)), y=lls)
 
-        exp.log_parameters(model.params)
+        exp.log_parameters(model_params)
         exp.log_metrics(analyzer.training_metrics)
 
         exp.log_figure("Log Likelihood", analyzer.plot_lls())
