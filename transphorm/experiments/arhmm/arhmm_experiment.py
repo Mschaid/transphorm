@@ -39,7 +39,7 @@ def define_search_space():
             "retryAssignLimit": 0,
         },
         "parameters": {
-            "K": [3, 4, 5, 6],
+            "K": [2, 3, 4, 5, 6],
             "D": [1],
             "M": [1, 2, 4, 6, 8, 10],
             "method": ["em"],
