@@ -1,11 +1,9 @@
 import os
 from pathlib import Path
-from typing import List, Optional
+
 
 import comet_ml
 import joblib
-import numpy as np
-import polars as pl
 import ssm
 import structlog
 
@@ -87,16 +85,15 @@ def train_model(exp, x):
 def run_optimizer(project_name, opt, loader, log, model_save_dir):
     exp_configs = experiment_configs(project_name)
     for exp in opt.get_experiments(**exp_configs):
-        model, lls = train_model(exp, x)
-
-        exp.log_parameters(model.params)
-        exp.log_metrics(model.training_metrics)
+        log.info(f"training {exp.name}")
+        model, lls = train_model(exp, loader.train)
 
         analyzer = ARHMMAnalyzer(model, lls, loader)
         analyzer.compute_metrics()
         exp.log_curve(name="Log Likehood", x=np.arange(len(lls)), y=lls)
 
-        #! TODO ADD ANALYSIS FOR TRAIN AND TEST
+        exp.log_parameters(model.params)
+        exp.log_metrics(model.training_metrics)
 
         exp.log_figure("Log Likelihood", analyzer.plot_lls())
         exp.log_figure("Mean State Durations", analyzer.plot_mean_state_duration())
