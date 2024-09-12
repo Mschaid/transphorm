@@ -72,8 +72,8 @@ class ARHMMAnalyzer:
     def get_sample_data(self):
         # for plotting
         idx = 0
-        sample_x = self.x_array[idx][:500]
-        sample_z = self.z_hat_array[idx][:500]
+        sample_x = self.x_array[idx][:50000]
+        sample_z = self.z_hat_array[idx][:50000]
         return sample_x, sample_z
 
     def get_mean_durations(self, z_hat, num_states):
