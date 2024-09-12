@@ -21,13 +21,13 @@ def load_data(
     path: Path,
     loader: AADataLoader,
     down_sample: bool = True,
-    downsample_factor: int = 100,
+    down_sample_factor: int = 100,
     low_pass: bool = True,
 ) -> (np.ndarray, np.ndarray, np.ndarray):
     loader = loader(
         path,
         down_sample=down_sample,
-        downsample_factor=downsample_factor,
+        down_sample_factor=down_sample_factor,
         low_pass=low_pass,
     )
     loader.load_data()
@@ -130,7 +130,7 @@ def main():
     COMET_API_KEY = os.getenv("COMET_API_KEY")
     log.info("loading data")
     loader = load_data(
-        path=FULL_RECORDING_PATH, loader=AADataLoader, downsample_factor=10
+        path=FULL_RECORDING_PATH, loader=AADataLoader, down_sample_factor=10
     )
     log.info("configuring optimizer")
     opt = comet_ml.Optimizer(config=define_search_space())
