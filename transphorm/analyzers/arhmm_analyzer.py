@@ -69,11 +69,11 @@ class ARHMMAnalyzer:
         self.x_array = np.array(self.train)
         self.x_array = self.x_array.reshape(-1, self.x_array.shape[1])
 
-    def get_sample_data(self, idx=6000):
+    def get_sample_data(self, end_idx=6000):
         # for plotting
         idx = 0
-        sample_x = self.x_array[idx][:idx]
-        sample_z = self.z_hat_array[idx][:idx]
+        sample_x = self.x_array[idx][:end_idx]
+        sample_z = self.z_hat_array[idx][:end_idx]
         return sample_x, sample_z
 
     def get_mean_durations(self, z_hat, num_states):
