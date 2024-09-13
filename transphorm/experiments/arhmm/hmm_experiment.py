@@ -50,7 +50,7 @@ def define_search_space():
         "parameters": {
             "K": [2, 3, 4, 5, 6],
             "D": [1],
-            "M": [1, 2, 4, 6, 8, 10],
+            "M": [0, 1],
             "method": ["em"],
             "transitions": [
                 "standard",
@@ -120,7 +120,7 @@ def run_optimizer(project_name, opt, loader, log, model_save_dir):
 def main():
     load_dotenv()
     log = structlog.get_logger()
-    PROJECT_NAME = "hmm_longform_1_10"
+    PROJECT_NAME = "hmm_longform_2"
     FULL_RECORDING_PATH = Path(os.getenv("FULL_RECORDING_PATH"))
     # FULL_RECORDING_PATH = Path(
     #     "/Users/mds8301/Desktop/temp/dopamine_full_timeseries_array.pt"

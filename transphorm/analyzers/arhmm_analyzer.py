@@ -69,7 +69,7 @@ class ARHMMAnalyzer:
         self.x_array = np.array(self.train)
         self.x_array = self.x_array.reshape(-1, self.x_array.shape[1])
 
-    def get_sample_data(self, end_idx=6000):
+    def get_sample_data(self, end_idx=25000):
         # for plotting
         idx = 0
         sample_x = self.x_array[idx][:end_idx]
@@ -126,7 +126,7 @@ class ARHMMAnalyzer:
             "test_lls": test_lls / len(self.test[0]),
         }
 
-    def plot_states(self, end_idx=6000):
+    def plot_states(self, end_idx=25000):
         plt.clf()
         sample_x, sample_z = self.get_sample_data(end_idx)
 
