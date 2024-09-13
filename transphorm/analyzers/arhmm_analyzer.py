@@ -45,7 +45,7 @@ def gradient_cmap(colors, nsteps=256, bounds=None):
 
 
 class ARHMMAnalyzer:
-    def __init__(self, model, lls, loader):
+    def __init__(self, model, lls=None, loader=None):
         self.model = model
         self.lls = lls
         self.loader = loader
@@ -69,11 +69,11 @@ class ARHMMAnalyzer:
         self.x_array = np.array(self.train)
         self.x_array = self.x_array.reshape(-1, self.x_array.shape[1])
 
-    def get_sample_data(self):
+    def get_sample_data(self, idx=6000):
         # for plotting
         idx = 0
-        sample_x = self.x_array[idx][:50000]
-        sample_z = self.z_hat_array[idx][:50000]
+        sample_x = self.x_array[idx][:idx]
+        sample_z = self.z_hat_array[idx][:idx]
         return sample_x, sample_z
 
     def get_mean_durations(self, z_hat, num_states):
@@ -109,6 +109,8 @@ class ARHMMAnalyzer:
 
     def plot_lls(self):
         plt.clf()
+        if self.lls is None:
+            raise ValueError("LLs not computed")
         fig, ax = plt.subplots()
         ax.plot(self.lls, label="EM 10 states")
         ax.set_xlabel("EM Iteration")
@@ -124,9 +126,9 @@ class ARHMMAnalyzer:
             "test_lls": test_lls / len(self.test[0]),
         }
 
-    def plot_states(self):
+    def plot_states(self, end_idx=6000):
         plt.clf()
-        sample_x, sample_z = self.get_sample_data()
+        sample_x, sample_z = self.get_sample_data(end_idx)
 
         # Adjust the plot to cover the full vertical range of x_s
         y_min, y_max = sample_x.min(), sample_x.max()
