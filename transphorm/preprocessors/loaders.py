@@ -60,7 +60,10 @@ class AADataLoader:
         """
         Load the data from the specified file path..
         """
-        self.data = torch.load(self.path).detach().numpy()
+        self.data = torch.load(self.path)
+
+        if type(self.data) == torch.Tensor:
+            self.data = self.data.detach().numpy()
 
     def _apply_low_pass(
         self, cutoff_frequency: float = 0.8, sampling_rate: float = 1000
