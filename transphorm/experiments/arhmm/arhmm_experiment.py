@@ -120,7 +120,7 @@ def run_optimizer(project_name, opt, loader, log, model_save_dir):
 def main():
     load_dotenv()
     log = structlog.get_logger()
-    PROJECT_NAME = "arhmm_longform_learning_partitioned"
+    PROJECT_NAME = "arhmm_full_learning_partitioned"
     FULL_RECORDING_PATH = Path(os.getenv("FULL_RECORDING_PATH"))
     # FULL_RECORDING_PATH = Path(
     #     "/Users/mds8301/Desktop/temp/dopamine_full_timeseries_array.pt"
@@ -130,7 +130,7 @@ def main():
     COMET_API_KEY = os.getenv("COMET_API_KEY")
     log.info("loading data")
     loader = load_data(
-        path=FULL_RECORDING_PATH, loader=AADataLoader, down_sample_factor=10
+        path=FULL_RECORDING_PATH, loader=AADataLoader, down_sample_factor=1
     )
     log.info("configuring optimizer")
     opt = comet_ml.Optimizer(config=define_search_space())

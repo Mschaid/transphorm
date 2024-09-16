@@ -5,15 +5,15 @@
 
 #SBATCH --ntasks-per-node=1
 
-#SBATCH --mem=100G
+#SBATCH --mem=200G
 
 #SBATCH --time=32:00:00
 
-#SBATCH --job-name='hmm_norm_learing_partiioned'
+#SBATCH --job-name='hmm_norm_full_learning_partitioned'
 
-#SBATCH --output='hmm_norm_learning_partitioned.log'
+#SBATCH --output='hmm_norm_full_learning_partitioned.log'
 
-JOB_NAME='hmm_norm_learning_partitioned'
+JOB_NAME='hmm_norm_full_learning_partitioned'
 
 curl -X POST -H 'Content-type: application/json' --data '{"text":"'${JOB_NAME}' started"}' $SLACK_WEBHOOK
 source activate transphorm
