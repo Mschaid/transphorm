@@ -114,9 +114,6 @@ def run_optimizer(project_name, opt, loader, log, model_save_dir):
         joblib.dump(model, model_save_dir / f"{exp.name}.joblib")
 
 
-# log results
-
-
 def main():
     load_dotenv()
     log = structlog.get_logger()

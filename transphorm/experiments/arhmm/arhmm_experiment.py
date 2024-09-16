@@ -57,7 +57,7 @@ def define_search_space():
                 "sticky",
             ],
             "observations": ["ar"],
-            "num_iters": [10, 20, 30, 40, 50],
+            "num_iters": [5, 10, 20],
         },
     }
     return configs
@@ -120,7 +120,7 @@ def run_optimizer(project_name, opt, loader, log, model_save_dir):
 def main():
     load_dotenv()
     log = structlog.get_logger()
-    PROJECT_NAME = "arhmm_longform_1_10"
+    PROJECT_NAME = "arhmm_longform_learning_partitioned"
     FULL_RECORDING_PATH = Path(os.getenv("FULL_RECORDING_PATH"))
     # FULL_RECORDING_PATH = Path(
     #     "/Users/mds8301/Desktop/temp/dopamine_full_timeseries_array.pt"
