@@ -4,13 +4,16 @@ from typing import List, Literal
 import matplotlib.pyplot as plt
 import numpy as np
 import polars as pl
+import torch
 
 
-def label_learned(x: int, threshold=80) -> Literal[0, 1]:
+def encode_learning(x: int) -> Literal[0, 1, 2]:
+    """Labels indicating learning status: 0 for not learned, 1 for partially learned, 2 for fully learned based on threshold."""
     """
-    labels learned or not learned as binary 0 or if over threshold
     """
-    if x >= threshold:
+    if x >= 75:
+        return 2
+    elif x < 75 and x >= 50:
         return 1
     else:
         return 0
@@ -25,7 +28,7 @@ def combine_data(fp_df, percent_avoid_df) -> pl.DataFrame:
         percent_avoid_df, on=["day", "cage", "mouse_id"], how="left"
     ).with_columns(
         pl.col("perc_avoid")
-        .map_elements(lambda x: 1 if x >= 80 else 0, return_dtype=pl.Int64)
+        .map_elements(lambda x: encode_learning(x), return_dtype=pl.Int64)
         .alias("learned")
     )
     return combined_data
@@ -102,6 +105,11 @@ def read_parquets(path: Path) -> List[pl.DataFrame]:
 def save_array_as_npy(path: Path, file_name: str, arr: np.array):
     path_to_save = path / f"{file_name}.npy"
     np.save(path_to_save, arr, allow_pickle=False)
+
+
+def save_array_as_pt(path: Path, file_name: str, arr: np.array):
+    path_to_save = path / f"{file_name}.pt"
+    torch.save(arr, path_to_save)
 
 
 def save_array_as_df_parquet(path, file_name: str, arr):

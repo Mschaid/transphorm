@@ -10,6 +10,7 @@ from transphorm.preprocessors import (
     get_cutoff_idx,
     read_parquets,
     save_array_as_npy,
+    save_array_as_pt,
     save_array_as_df_parquet,
     shape_arrays,
 )
@@ -49,9 +50,9 @@ def main(main_path):
         array_list, cut_off_idx=cut_off_idx, tranpose_array=True
     )
     logger.info("data reshaped")
-    save_array_as_npy(
+    save_array_as_pt(
         path=main_path,
-        file_name="dopamine_full_timeseries_array",
+        file_name="dopamine_full_timeseries_array_partitioned_learning",
         arr=reshaped_and_combined_array,
     )
     logger.info(f"data saved to {main_path}")
