@@ -48,7 +48,7 @@ def define_search_space():
             "retryAssignLimit": 0,
         },
         "parameters": {
-            "K": [2, 3, 4, 5, 6],
+            "K": [8, 10, 12, 15, 20, 25, 30],
             "D": [1],
             "M": [0, 1],
             "method": ["em"],
@@ -57,7 +57,7 @@ def define_search_space():
                 "sticky",
             ],
             "observations": ["gaussian"],
-            "num_iters": [5, 10, 20],
+            "num_iters": [5, 8, 10, 15, 18, 20, 25],
         },
     }
     return configs
@@ -117,7 +117,7 @@ def run_optimizer(project_name, opt, loader, log, model_save_dir):
 def main():
     load_dotenv()
     log = structlog.get_logger()
-    PROJECT_NAME = "hmm_full_learning_partitioned"
+    PROJECT_NAME = "hmm_full_highstate"
     FULL_RECORDING_PATH = Path(os.getenv("FULL_RECORDING_PATH"))
     # FULL_RECORDING_PATH = Path(
     #     "/Users/mds8301/Desktop/temp/dopamine_full_timeseries_array.pt"
