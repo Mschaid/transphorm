@@ -9,11 +9,11 @@
 
 #SBATCH --time=32:00:00
 
-#SBATCH --job-name='arhmm_full_learning_partitioned'
+#SBATCH --job-name='arhhm_partiioned_ds10_weiner77'
 
-#SBATCH --output='arhmm_full_learning_partitioned.log'
+#SBATCH --output='arhhm_partiioned_ds10_weiner77.log'
 
-JOB_NAME='arhmm_full_learning_partitioned'
+JOB_NAME='arhhm_partiioned_ds10_weiner77'
 
 curl -X POST -H 'Content-type: application/json' --data '{"text":"'${JOB_NAME}' started"}' $SLACK_WEBHOOK
 source activate transphorm

@@ -48,7 +48,7 @@ def define_search_space():
             "retryAssignLimit": 0,
         },
         "parameters": {
-            "K": [2, 3, 4, 5, 6],
+            "K": [3, 5, 7, 9, 11],
             "D": [1],
             "M": [1, 2, 4, 6, 8, 10],
             "method": ["em"],
@@ -57,7 +57,7 @@ def define_search_space():
                 "sticky",
             ],
             "observations": ["ar"],
-            "num_iters": [5, 10, 20],
+            "num_iters": [5, 10, 15, 20, 25],
         },
     }
     return configs
@@ -120,7 +120,7 @@ def run_optimizer(project_name, opt, loader, log, model_save_dir):
 def main():
     load_dotenv()
     log = structlog.get_logger()
-    PROJECT_NAME = "arhmm_full_learning_partitioned"
+    PROJECT_NAME = "arhhm_partiioned_ds10_weiner77"
     FULL_RECORDING_PATH = Path(os.getenv("FULL_RECORDING_PATH"))
     # FULL_RECORDING_PATH = Path(
     #     "/Users/mds8301/Desktop/temp/dopamine_full_timeseries_array.pt"
@@ -130,7 +130,13 @@ def main():
     COMET_API_KEY = os.getenv("COMET_API_KEY")
     log.info("loading data")
     loader = load_data(
-        path=FULL_RECORDING_PATH, loader=AADataLoader, down_sample_factor=1
+        path=FULL_RECORDING_PATH,
+        loader=AADataLoader,
+        down_sample=True,
+        down_sample_factor=10,
+        low_pass=False,
+        weiner_filter=True,
+        weiner_window_size=77,
     )
     log.info("configuring optimizer")
     opt = comet_ml.Optimizer(config=define_search_space())

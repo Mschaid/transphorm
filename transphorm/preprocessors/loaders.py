@@ -1,4 +1,5 @@
 from scipy import signal
+
 import torch
 from torch import Tensor
 from typing import List, Optional
@@ -24,8 +25,10 @@ class AADataLoader:
         self,
         path: str,
         down_sample: bool = False,
-        low_pass: bool = False,
         down_sample_factor: int = 100,
+        low_pass: bool = False,
+        weiner_filter: bool = False,
+        weiner_window_size: int = 77,
     ) -> None:
         """
         Initialize the AADataLoader with a file path.
@@ -42,6 +45,8 @@ class AADataLoader:
         self.down_sample = down_sample
         self.down_sample_factor = down_sample_factor
         self.low_pass = low_pass
+        self.weiner_filter = weiner_filter
+        self.weiner_window_size = weiner_window_size
 
     def _clean_data(self) -> None:
         """
@@ -80,6 +85,15 @@ class AADataLoader:
         # Apply the filter
         self.x = signal.filtfilt(b, a, self.x, axis=1)
 
+    def _weiner_filter(self, noise_power: Optional[float] = None) -> None:
+
+        self.x = np.array(
+            [
+                signal.wiener(row, mysize=self.weiner_window_size, noise=noise_power)
+                for row in self.x
+            ]
+        )
+
     def _down_sample(self) -> None:
         """
         Down sample the data.
@@ -106,6 +120,8 @@ class AADataLoader:
             self._apply_low_pass()
         if self.down_sample:
             self._down_sample()
+        if self.weiner_filter:
+            self._weiner_filter()
 
         len_30_min = self.x.shape[1]
         len_1_min = len_30_min // 30

@@ -48,7 +48,7 @@ def define_search_space():
             "retryAssignLimit": 0,
         },
         "parameters": {
-            "K": [8, 10, 12, 15, 20, 25, 30],
+            "K": [3, 5, 7, 9, 11],
             "D": [1],
             "M": [0, 1],
             "method": ["em"],
@@ -117,7 +117,7 @@ def run_optimizer(project_name, opt, loader, log, model_save_dir):
 def main():
     load_dotenv()
     log = structlog.get_logger()
-    PROJECT_NAME = "hmm_full_highstate_ds10"
+    PROJECT_NAME = "hhm_partiioned_ds10_weiner77"
     FULL_RECORDING_PATH = Path(os.getenv("FULL_RECORDING_PATH"))
     # FULL_RECORDING_PATH = Path(
     #     "/Users/mds8301/Desktop/temp/dopamine_full_timeseries_array.pt"
@@ -127,7 +127,13 @@ def main():
     COMET_API_KEY = os.getenv("COMET_API_KEY")
     log.info("loading data")
     loader = load_data(
-        path=FULL_RECORDING_PATH, loader=AADataLoader, down_sample_factor=10
+        path=FULL_RECORDING_PATH,
+        loader=AADataLoader,
+        down_sample=True,
+        down_sample_factor=10,
+        low_pass=False,
+        weiner_filter=True,
+        weiner_window_size=77,
     )
     log.info("configuring optimizer")
     opt = comet_ml.Optimizer(config=define_search_space())
