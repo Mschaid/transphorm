@@ -89,7 +89,7 @@ def run_optimizer(project_name, opt, loader, log, model_save_dir):
         log.info(f"test_lls: {analyzer.training_metrics['test_lls']}")
         exp.log_figure("Log Likelihood", analyzer.plot_lls())
         exp.log_figure("Mean State Durations", analyzer.plot_mean_state_duration())
-        exp.log_figure("Example States", analyzer.plot_states())
+        exp.log_figure("Example States", analyzer.plot_states(end_idx=5000))
         exp.log_table("mean_state_durations.csv", analyzer.agg_data)
         joblib.dump(model, model_save_dir / f"{exp.name}.joblib")
 
@@ -97,7 +97,7 @@ def run_optimizer(project_name, opt, loader, log, model_save_dir):
 def main():
     load_dotenv()
     log = structlog.get_logger()
-    PROJECT_NAME = "hhm_partiioned_ds10_weiner77"
+    PROJECT_NAME = "hhm_partiioned_ds25_lastshot"
     FULL_RECORDING_PATH = Path(os.getenv("FULL_RECORDING_PATH"))
     # FULL_RECORDING_PATH = Path(
     #     "/Users/mds8301/Desktop/temp/dopamine_full_timeseries_array.pt"
@@ -107,12 +107,11 @@ def main():
     COMET_API_KEY = os.getenv("COMET_API_KEY")
     log.info("loading data")
     loader = AADataLoader(
-        path=FULL_RECORDING_PATH,
-        down_sample=True,
-        down_sample_factor=10,
-        low_pass=False,
         weiner_filter=True,
-        weiner_window_size=77,
+        weiner_window_size=1071,
+        smoothing=True,
+        smoothing_window_size=1071,
+        down_sample=True,
     )
     loader.load_data()
     loader.prepare_data()

@@ -24,11 +24,12 @@ class AADataLoader:
     def __init__(
         self,
         path: str,
-        down_sample: bool = False,
-        down_sample_factor: int = 100,
-        low_pass: bool = False,
+        smoothing: bool = False,
+        smoothing_window_size: int = 535,
         weiner_filter: bool = False,
-        weiner_window_size: int = 77,
+        weiner_window_size: int = 556,
+        down_sample: bool = False,
+        down_sample_factor: int = 25,
     ) -> None:
         """
         Initialize the AADataLoader with a file path.
@@ -42,9 +43,10 @@ class AADataLoader:
         self.train: Optional[List[np.ndarray]] = None
         self.test: Optional[List[np.ndarray]] = None
         self.labels: Optional[np.ndarray] = None
+        self.smoothing = smoothing
+        self.smoothing_window_size = smoothing_window_size
         self.down_sample = down_sample
         self.down_sample_factor = down_sample_factor
-        self.low_pass = low_pass
         self.weiner_filter = weiner_filter
         self.weiner_window_size = weiner_window_size
 
@@ -70,21 +72,6 @@ class AADataLoader:
         if type(self.data) == torch.Tensor:
             self.data = self.data.detach().numpy()
 
-    def _apply_low_pass(
-        self, cutoff_frequency: float = 0.8, sampling_rate: float = 1000
-    ) -> None:
-        """
-        Apply a low pass filter to the data.
-        """
-        nyquist_frequency = 0.5 * sampling_rate
-        normalized_cutoff = cutoff_frequency / nyquist_frequency
-
-        # Design the Butterworth low-pass filter
-        b, a = signal.butter(N=2, Wn=normalized_cutoff, btype="low", analog=False)
-
-        # Apply the filter
-        self.x = signal.filtfilt(b, a, self.x, axis=1)
-
     def _weiner_filter(self, noise_power: Optional[float] = None) -> None:
 
         self.x = np.array(
@@ -93,6 +80,23 @@ class AADataLoader:
                 for row in self.x
             ]
         )
+
+    def __apply_smoothing(self, window_size: int) -> None:
+        self.x = np.array(
+            [
+                signal.convolve(
+                    row,
+                    np.ones(self.smoothing_window_size) / self.smoothing_window_size,
+                    mode="valid",
+                )
+                for row in self.x
+            ]
+        )
+
+    def _apply_smoothing(self) -> None:
+        self.__apply_smoothing(self.smoothing_window_size)
+        self.__apply_smoothing(self.smoothing_window_size // 2)
+        self.__apply_smoothing(self.smoothing_window_size // 4)
 
     def _down_sample(self) -> None:
         """
@@ -116,12 +120,12 @@ class AADataLoader:
         self.x = self.data[:, 1:]
         self.labels = self.data[:, 0]
 
-        if self.low_pass:
-            self._apply_low_pass()
-        if self.down_sample:
-            self._down_sample()
+        if self.smoothing:
+            self._apply_smoothing()
         if self.weiner_filter:
             self._weiner_filter()
+        if self.down_sample:
+            self._down_sample()
 
         len_30_min = self.x.shape[1]
         len_1_min = len_30_min // 30
