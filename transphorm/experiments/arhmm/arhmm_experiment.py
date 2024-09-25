@@ -17,23 +17,6 @@ from transphorm.preprocessors.loaders import AADataLoader
 
 
 # read data
-def load_data(
-    path: Path,
-    loader: AADataLoader,
-    down_sample: bool = True,
-    down_sample_factor: int = 100,
-    low_pass: bool = True,
-) -> (np.ndarray, np.ndarray, np.ndarray):
-    loader = loader(
-        path,
-        down_sample=down_sample,
-        down_sample_factor=down_sample_factor,
-        low_pass=low_pass,
-    )
-    loader.load_data()
-    loader.prepare_data()
-
-    return loader
 
 
 def define_search_space():
@@ -128,6 +111,7 @@ def main():
     COMET_API_KEY = os.getenv("COMET_API_KEY")
     log.info("loading data")
     loader = AADataLoader(
+        path=FULL_RECORDING_PATH,
         weiner_filter=True,
         weiner_window_size=1071,
         smoothing=True,

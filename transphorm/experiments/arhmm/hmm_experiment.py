@@ -28,7 +28,7 @@ def define_search_space():
             "retryAssignLimit": 0,
         },
         "parameters": {
-            "K": [3, 5, 7, 9, 11],
+            "K": [3, 5, 7, 9],
             "D": [1],
             "M": [0, 1],
             "method": ["em"],
@@ -107,6 +107,7 @@ def main():
     COMET_API_KEY = os.getenv("COMET_API_KEY")
     log.info("loading data")
     loader = AADataLoader(
+        path=FULL_RECORDING_PATH,
         weiner_filter=True,
         weiner_window_size=1071,
         smoothing=True,
