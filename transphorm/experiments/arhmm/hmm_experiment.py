@@ -97,7 +97,7 @@ def run_optimizer(project_name, opt, loader, log, model_save_dir):
 def main():
     load_dotenv()
     log = structlog.get_logger()
-    PROJECT_NAME = "hhm_partiioned_ds25_lastshot"
+    PROJECT_NAME = "hhm_partiioned_ds25_lastshot_w_hpf"
     FULL_RECORDING_PATH = Path(os.getenv("FULL_RECORDING_PATH"))
     # FULL_RECORDING_PATH = Path(
     #     "/Users/mds8301/Desktop/temp/dopamine_full_timeseries_array.pt"
@@ -107,11 +107,12 @@ def main():
     COMET_API_KEY = os.getenv("COMET_API_KEY")
     log.info("loading data")
     loader = AADataLoader(
-        path=FULL_RECORDING_PATH,
-        weiner_filter=True,
-        weiner_window_size=1071,
+        FULL_RECORDING_PATH,
+        butter_filter=True,
+        weiner_filter=False,
+        weiner_window_size=1000,
         smoothing=True,
-        smoothing_window_size=1071,
+        smoothing_window_size=250,
         down_sample=True,
     )
     loader.load_data()

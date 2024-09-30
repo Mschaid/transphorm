@@ -24,6 +24,10 @@ class AADataLoader:
     def __init__(
         self,
         path: str,
+        butter_filter: bool = False,
+        butter_cutoff: int = 2,
+        butter_fs: int = 1070,
+        butter_order: int = 6,
         smoothing: bool = False,
         smoothing_window_size: int = 535,
         weiner_filter: bool = False,
@@ -43,6 +47,10 @@ class AADataLoader:
         self.train: Optional[List[np.ndarray]] = None
         self.test: Optional[List[np.ndarray]] = None
         self.labels: Optional[np.ndarray] = None
+        self.butter_filter = butter_filter
+        self.butter_cutoff = butter_cutoff
+        self.butter_fs = butter_fs
+        self.butter_order = butter_order
         self.smoothing = smoothing
         self.smoothing_window_size = smoothing_window_size
         self.down_sample = down_sample
@@ -72,6 +80,34 @@ class AADataLoader:
         if type(self.data) == torch.Tensor:
             self.data = self.data.detach().numpy()
 
+    def _butter_lowpass_filter(
+        self, data, cutoff: int = 1.5, fs: int = 1070, order: int = 8
+    ):
+        """
+        Applies a low-pass Butterworth filter to the input data.
+
+        Parameters:
+        data (np.array): The time series data to filter. Shape should be (n_samples,) or (n_trials, n_samples)
+        cutoff (float): The cutoff frequency of the filter in Hz
+        fs (float): The sampling frequency of the data in Hz
+        order (int): The order of the filter (default is 6)
+
+        Returns:
+        np.array: The filtered data, same shape as input
+        """
+        nyq = 0.5 * fs
+        normal_cutoff = cutoff / nyq
+        b, a = signal.butter(order, normal_cutoff, btype="low", analog=False)
+
+        if data.ndim == 1:
+            filtered_data = signal.filtfilt(b, a, data)
+        else:
+            filtered_data = np.apply_along_axis(
+                lambda x: signal.filtfilt(b, a, x), axis=-1, arr=data
+            )
+
+        return filtered_data
+
     def _weiner_filter(self, noise_power: Optional[float] = None) -> None:
 
         self.x = np.array(
@@ -95,8 +131,8 @@ class AADataLoader:
 
     def _apply_smoothing(self) -> None:
         self.__apply_smoothing(self.smoothing_window_size)
-        self.__apply_smoothing(self.smoothing_window_size // 2)
-        self.__apply_smoothing(self.smoothing_window_size // 4)
+        # self.__apply_smoothing(self.smoothing_window_size // 2)
+        # self.__apply_smoothing(self.smoothing_window_size // 4)
 
     def _down_sample(self) -> None:
         """
@@ -119,6 +155,11 @@ class AADataLoader:
         self._clean_data()
         self.x = self.data[:, 1:]
         self.labels = self.data[:, 0]
+
+        if self.butter_filter:
+            self.x = self._butter_lowpass_filter(
+                self.x, self.butter_cutoff, self.butter_fs, self.butter_order
+            )
 
         if self.smoothing:
             self._apply_smoothing()
