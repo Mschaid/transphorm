@@ -9,11 +9,11 @@
 
 #SBATCH --mem=50G
 
-#SBATCH --time=12:00:00
+#SBATCH --time=24:00:00
 
-#SBATCH --job-name='lstmnfcn_bayes_tuning_5_day'
+#SBATCH --job-name='lstmnfcn_bayes_tuning_5_day_weighted_4_sec'
 
-JOB_NAME='lstmnfcn_bayes_tuning_5_day'
+JOB_NAME='lstmnfcn_bayes_tuning_5_day_weighted_4_sec'
 
 curl -X POST -H 'Content-type: application/json' --data '{"text":"'${JOB_NAME}' started"}' $SLACK_WEBHOOK
 source activate transphorm

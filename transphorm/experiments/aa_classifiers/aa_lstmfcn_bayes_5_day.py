@@ -57,10 +57,11 @@ def exeperiment_configs(project_name):
     return exp_configs
 
 
-def load_data(path: Path):
+def load_data(path: Path, recording_length: int = 6):
+    end_idx = 1017 * recording_length
     X, y = dataloader_to_numpy(path)
     X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
-    return X_train, X_test, y_train, y_test
+    return X_train[:, :end_idx], X_test[:, :end_idx], y_train, y_test
 
 
 def train(exp, X_train, y_train):
@@ -133,14 +134,16 @@ def run_optimizer(
 def main():
     load_dotenv()
     log = structlog.get_logger()
-    PROJECT_NAME = "lstmnfcn_bayes_tuning_5_day_weighted"
+    PROJECT_NAME = "lstmnfcn_bayes_tuning_5_day_weighted_4_sec"
     MODEL_SAVE_DIR = Path("/projects/p31961/transphorm/models/aa_classifiers/sk_models")
 
     DATA_PATH = Path(os.getenv("DATA_PATH_5_DAY"))
     COMET_API_KEY = os.getenv("COMET_API_KEY")
-
+    RECORDING_LENGTH = 4
     log.info("loading data")
-    X_train, X_test, y_train, y_test = load_data(DATA_PATH)
+    X_train, X_test, y_train, y_test = load_data(
+        DATA_PATH, recording_length=RECORDING_LENGTH
+    )
     log.info("configuring optimizer")
     opt = comet_ml.Optimizer(config=set_hypertune_configs())
 
