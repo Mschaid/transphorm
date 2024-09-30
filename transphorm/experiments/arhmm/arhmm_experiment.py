@@ -33,7 +33,7 @@ def define_search_space():
         "parameters": {
             "K": [3, 5, 7, 9],
             "D": [1],
-            "M": [1, 2, 4, 6, 8, 10],
+            "M": [2, 5, 10, 20],
             "method": ["em"],
             "transitions": [
                 "standard",
@@ -103,7 +103,7 @@ def run_optimizer(project_name, opt, loader, log, model_save_dir):
 def main():
     load_dotenv()
     log = structlog.get_logger()
-    PROJECT_NAME = "arhhm_partiioned_ds25_lastshot_w_hpf"
+    PROJECT_NAME = "hhm_partiioned_ds25_lastshot_w_hpf"
     FULL_RECORDING_PATH = Path(os.getenv("FULL_RECORDING_PATH"))
 
     MODEL_SAVE_DIR = Path("/projects/p31961/transphorm/models/arhmm")

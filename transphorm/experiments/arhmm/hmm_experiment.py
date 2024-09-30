@@ -37,7 +37,7 @@ def define_search_space():
                 "sticky",
             ],
             "observations": ["gaussian"],
-            "num_iters": [5, 8, 10, 15, 18, 20, 25],
+            "num_iters": [5, 10, 15, 20, 25],
         },
     }
     return configs
@@ -89,7 +89,7 @@ def run_optimizer(project_name, opt, loader, log, model_save_dir):
         log.info(f"test_lls: {analyzer.training_metrics['test_lls']}")
         exp.log_figure("Log Likelihood", analyzer.plot_lls())
         exp.log_figure("Mean State Durations", analyzer.plot_mean_state_duration())
-        exp.log_figure("Example States", analyzer.plot_states(end_idx=5000))
+        exp.log_figure("Example States", analyzer.plot_states(end_idx=12000))
         exp.log_table("mean_state_durations.csv", analyzer.agg_data)
         joblib.dump(model, model_save_dir / f"{exp.name}.joblib")
 
