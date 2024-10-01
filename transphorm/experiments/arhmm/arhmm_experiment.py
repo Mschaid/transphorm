@@ -103,7 +103,7 @@ def run_optimizer(project_name, opt, loader, log, model_save_dir):
 def main():
     load_dotenv()
     log = structlog.get_logger()
-    PROJECT_NAME = "hhm_partiioned_ds25_lastshot_w_hpf"
+    PROJECT_NAME = "arhhm_partiioned_ds25_lastshot_w_hpf"
     FULL_RECORDING_PATH = Path(os.getenv("FULL_RECORDING_PATH"))
 
     MODEL_SAVE_DIR = Path("/projects/p31961/transphorm/models/arhmm")
