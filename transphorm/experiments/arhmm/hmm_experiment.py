@@ -30,7 +30,7 @@ def define_search_space():
         "parameters": {
             "K": [3, 5, 7, 9],
             "D": [1],
-            "M": [0, 1],
+            "M": [0],
             "method": ["em"],
             "transitions": [
                 "standard",
