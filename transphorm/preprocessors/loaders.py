@@ -60,16 +60,18 @@ class AADataLoader:
 
     def _clean_data(self) -> None:
         """
-        Clean the data by removing NaNs and infs.
+        Clean the data by removing NaNs and infs, and clipping extreme values.
         """
-        try:
-            self.data = self.data[~np.isnan(self.data).any(axis=1)]
-        except:
-            pass
-        try:
-            self.data = self.data[~np.isinf(self.data).any(axis=1)]
-        except:
-            pass
+        # Remove rows with NaN or inf values
+        self.data = self.data[~np.isnan(self.data).any(axis=1)]
+        self.data = self.data[~np.isinf(self.data).any(axis=1)]
+
+        # Clip extreme values (optional, adjust as needed)
+        # lower_bound = np.percentile(self.data, 1)
+        # upper_bound = np.percentile(self.data, 99)
+        self.data = self.data[~(self.data < -99.0).any(axis=1)]
+
+        print(f"clean data call: min={np.min(self.data)}, max={np.max(self.data)}")
 
     def load_data(self) -> None:
         """
@@ -79,6 +81,8 @@ class AADataLoader:
 
         if type(self.data) == torch.Tensor:
             self.data = self.data.detach().numpy()
+        # self.data = np.delete(self.data, [74, 75, 76, 77], axis=0)
+        print(f"load data call: {np.min(self.data)}")
 
     def _butter_lowpass_filter(
         self, data, cutoff: int = 1.5, fs: int = 1070, order: int = 8
@@ -105,7 +109,7 @@ class AADataLoader:
             filtered_data = np.apply_along_axis(
                 lambda x: signal.filtfilt(b, a, x), axis=-1, arr=data
             )
-
+        print(f"butter call: {np.min(filtered_data)}")
         return filtered_data
 
     def _weiner_filter(self, noise_power: Optional[float] = None) -> None:
@@ -116,6 +120,7 @@ class AADataLoader:
                 for row in self.x
             ]
         )
+        print(f"weiner call: {np.min(self.x)}")
 
     def __apply_smoothing(self, window_size: int) -> None:
         self.x = np.array(
@@ -128,9 +133,11 @@ class AADataLoader:
                 for row in self.x
             ]
         )
+        print(f"smoothing call: {np.min(self.x)}")
 
     def _apply_smoothing(self) -> None:
         self.__apply_smoothing(self.smoothing_window_size)
+        print(f"smoothing call: {np.min(self.x)}")
         # self.__apply_smoothing(self.smoothing_window_size // 2)
         # self.__apply_smoothing(self.smoothing_window_size // 4)
 
@@ -139,6 +146,7 @@ class AADataLoader:
         Down sample the data.
         """
         self.x = signal.decimate(self.x, self.down_sample_factor, axis=1)
+        print(f"down sample call: {np.min(self.x)}")
 
     def _shape_for_arhmm(self, x) -> None:
         return [x[i].reshape(-1, 1) for i in range(x.shape[0])]
