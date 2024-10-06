@@ -120,7 +120,6 @@ def run_optimizer(
             y=y_test,
             y_pred=test_pred,
             y_pred_prob=test_pred_prob,
-            data_cat="test",
             exp=exp,
         )
 
