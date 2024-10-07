@@ -71,8 +71,6 @@ class AADataLoader:
         # upper_bound = np.percentile(self.data, 99)
         self.data = self.data[~(self.data < -99.0).any(axis=1)]
 
-        print(f"clean data call: min={np.min(self.data)}, max={np.max(self.data)}")
-
     def load_data(self) -> None:
         """
         Load the data from the specified file path..
@@ -82,7 +80,6 @@ class AADataLoader:
         if type(self.data) == torch.Tensor:
             self.data = self.data.detach().numpy()
         # self.data = np.delete(self.data, [74, 75, 76, 77], axis=0)
-        print(f"load data call: {np.min(self.data)}")
 
     def _butter_lowpass_filter(
         self, data, cutoff: int = 1.5, fs: int = 1070, order: int = 8
@@ -109,7 +106,6 @@ class AADataLoader:
             filtered_data = np.apply_along_axis(
                 lambda x: signal.filtfilt(b, a, x), axis=-1, arr=data
             )
-        print(f"butter call: {np.min(filtered_data)}")
         return filtered_data
 
     def _weiner_filter(self, noise_power: Optional[float] = None) -> None:
@@ -120,7 +116,6 @@ class AADataLoader:
                 for row in self.x
             ]
         )
-        print(f"weiner call: {np.min(self.x)}")
 
     def __apply_smoothing(self, window_size: int) -> None:
         self.x = np.array(
@@ -133,11 +128,9 @@ class AADataLoader:
                 for row in self.x
             ]
         )
-        print(f"smoothing call: {np.min(self.x)}")
 
     def _apply_smoothing(self) -> None:
         self.__apply_smoothing(self.smoothing_window_size)
-        print(f"smoothing call: {np.min(self.x)}")
         # self.__apply_smoothing(self.smoothing_window_size // 2)
         # self.__apply_smoothing(self.smoothing_window_size // 4)
 
@@ -146,12 +139,11 @@ class AADataLoader:
         Down sample the data.
         """
         self.x = signal.decimate(self.x, self.down_sample_factor, axis=1)
-        print(f"down sample call: {np.min(self.x)}")
 
     def _shape_for_arhmm(self, x) -> None:
         return [x[i].reshape(-1, 1) for i in range(x.shape[0])]
 
-    def prepare_data(self) -> None:
+    def prepare_data(self, shape_for_arhmm: bool = False) -> None:
         """
         Prepare the loaded data for further processing.
 
@@ -180,6 +172,11 @@ class AADataLoader:
         len_1_min = len_30_min // 30
         training_idx = int(len_1_min * 25)
 
-        self.train = self._shape_for_arhmm(self.x[:, :training_idx])
-        self.test = self._shape_for_arhmm(self.x[:, training_idx:])
+        if shape_for_arhmm:
+            self.train = self._shape_for_arhmm(self.x[:, :training_idx])
+            self.test = self._shape_for_arhmm(self.x[:, training_idx:])
+        else:
+            self.train = self.x[:, :training_idx]
+            self.test = self.x[:, training_idx:]
+
         self.labels = self.data[:, 0]

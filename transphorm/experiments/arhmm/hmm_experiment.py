@@ -116,7 +116,7 @@ def main():
         down_sample=True,
     )
     loader.load_data()
-    loader.prepare_data()
+    loader.prepare_data(shape_for_arhmm=True)
     log.info("configuring optimizer")
     opt = comet_ml.Optimizer(config=define_search_space())
     run_optimizer(

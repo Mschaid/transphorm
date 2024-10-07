@@ -59,6 +59,7 @@ def exeperiment_configs(project_name):
 
 def load_data(path: Path, recording_length: int = 6):
     end_idx = 1017 * recording_length
+    print(end_idx)
     X, y = dataloader_to_numpy(path)
     X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
     return X_train[:, :end_idx], X_test[:, :end_idx], y_train, y_test
@@ -143,6 +144,10 @@ def main():
     X_train, X_test, y_train, y_test = load_data(
         DATA_PATH, recording_length=RECORDING_LENGTH
     )
+    print(X_train.shape)
+    print(X_test.shape)
+    print(y_train.shape)
+    print(y_test.shape)
     log.info("configuring optimizer")
     opt = comet_ml.Optimizer(config=set_hypertune_configs())
 
