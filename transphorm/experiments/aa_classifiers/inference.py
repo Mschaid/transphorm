@@ -33,6 +33,10 @@ def main():
         "y_test": y_test,
         "y_test_pred": model.predict(X_test),
     }
+    print(results["x_train"].shape)
+    print(results["x_test"].shape)
+    print(results["y_train"].shape)
+    print(results["y_test"].shape)
 
     log.info("saving data")
     for k, v in results.items():
