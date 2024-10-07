@@ -12,13 +12,16 @@ def main():
     log = structlog.get_logger()
     load_dotenv()
     MODEL_PATH = Path(
-        "/projects/p31961/transphorm/models/aa_classifiers/sk_models/accepted_plywood_8946.joblib"
+        "/projects/p31961/transphorm/models/aa_classifiers/sk_models/appropriate_pizza_5708.joblib"
     )
     DATA_PATH = Path(os.getenv("DATA_PATH_5_DAY"))
     path_to_save = Path("/home/mds8301/data/gaby_data/over_day_5/eval_data")
+    RECORDING_LENGTH = 4
     model = load(MODEL_PATH)
 
-    X_train, X_test, y_train, y_test = load_data(DATA_PATH)
+    X_train, X_test, y_train, y_test = load_data(
+        DATA_PATH, recording_length=RECORDING_LENGTH
+    )
     model.fit(X_train, y_train)
 
     log.info("running infernece")
@@ -34,10 +37,10 @@ def main():
     log.info("saving data")
     for k, v in results.items():
         np.save(path_to_save / f"{k}.npy", v)
-    np.savez(path_to_save / "inference_results.npz", **results)
+    np.savez(path_to_save / "inference_results_4sec.npz", **results)
 
     model.save(
-        path="/projects/p31961/transphorm/models/aa_classifiers/sk_models/accepted_plywood_8946"
+        path="/projects/p31961/transphorm/models/aa_classifiers/sk_models/appropriate_pizza_5708"
     )
 
     log.info("done")
