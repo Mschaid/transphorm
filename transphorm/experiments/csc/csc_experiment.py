@@ -78,7 +78,6 @@ def build_model(exp):
         "n_jobs": exp.get_parameter("n_jobs"),
         "verbose": 4,
         "random_state": 42,
-        "solver_d_kwargs": solver_d_kwargs,
     }
     csc = CDLTrainer(**params, solver_d_kwargs=solver_d_kwargs)
     return csc
@@ -135,7 +134,7 @@ def main():
         down_sample_factor=10,
     )
     loader.load_data()
-    loader.prepare_data(shape_for_arhmm=True)
+    loader.prepare_data(shape_for_arhmm=False)
     log.info("configuring optimizer")
     opt = comet_ml.Optimizer(config=define_search_space())
     run_optimizer(
