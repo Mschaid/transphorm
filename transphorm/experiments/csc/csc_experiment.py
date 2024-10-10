@@ -36,7 +36,7 @@ def define_search_space():
             "n_times_atom": [sec * t for t in times],
             "reg": [0.01, 0.05, 0.1, 0.5, 1, 5, 10],
             "n_iter": [10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
-            "n_jobs": [-1],
+            "n_jobs": [4],
             # solver_d_kwargs
             "maxiter": [500, 1000, 1500, 2000],
             "tol": [1e-3, 1e-4, 1e-5, 1e-6],
