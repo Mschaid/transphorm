@@ -98,11 +98,28 @@ class CDLAnalyzer:
     def __init__(self, trainer, loader):
         self.trainer = trainer
         self.loader = loader
-        self.mse_list = None
+        self.train_mse_list = None
+        self.test_mse_list = None
+        self.train_mse = None
+        self.test_mse = None
+        self.train_x_hat = None
+        self.test_x_hat = None
+        self.train_z_hat = None
+        self.test_z_hat = None
 
-    def compute_mse(self, x, x_hat):
-        self.mse_list = calculate_mse_list(x, x_hat)
-        return np.mean(self.mse_list)
+    def compute_z_and_x_hat(self):
+
+        self.train_z_hat = self.trainer.transform(self.loader.train)
+        self.test_z_hat = self.trainer.transform(self.loader.test)
+
+        self.train_x_hat = self.trainer.reconstruct(self.train_z_hat)
+        self.test_x_hat = self.trainer.reconstruct(self.test_z_hat)
+
+    def compute_mses(self):
+        self.train_mse_list = calculate_mse_list(self.loader.train, self.train_x_hat)
+        self.test_mse_list = calculate_mse_list(self.loader.test, self.test_x_hat)
+        self.train_mse = np.mean(self.train_mse_list)
+        self.test_mse = np.mean(self.test_mse_list)
 
     def plot_pobjective(self):
         plt.figure(figsize=(5, 3))
@@ -131,14 +148,14 @@ class CDLAnalyzer:
 
         return n_rows, n_cols
 
-    def plot_atoms(self, d_hat):
+    def plot_atoms(self):
         """
         Plots the atoms learned by the CDL model.
 
         Parameters:
         - d_hat (np.ndarray): Learned atoms of shape (n_atoms, n_channels, n_times_atom).
         """
-        n_atoms, _ = d_hat.shape
+        n_atoms, _ = self.trainer.d_hat.shape
 
         # Determine the best subplot arrangement
         n_rows, n_cols = self._get_subplot_arrangement(n_atoms)
@@ -150,7 +167,7 @@ class CDLAnalyzer:
 
         for i, ax in enumerate(axes):
             if i < n_atoms:
-                ax.plot(d_hat[i])
+                ax.plot(self.trainer.d_hat[i])
                 ax.set_title(f"Atom {i+1}")
                 ax.set_xlabel("Time")
                 ax.set_ylabel("Amplitude")
@@ -162,7 +179,8 @@ class CDLAnalyzer:
 
     def plot_mse_distribution(self):
         plt.figure(figsize=(5, 3))
-        plt.hist(self.mse_list, bins=20, edgecolor="black")
+        plt.hist(self.train_mse_list, bins=20, edgecolor="black", alpha=0.5)
+        plt.hist(self.test_mse_list, bins=20, edgecolor="black", alpha=0.5)
         plt.title("Distribution of MSE across trials")
         plt.xlabel("MSE")
         plt.ylabel("Frequency")
@@ -170,59 +188,67 @@ class CDLAnalyzer:
 
     def mse_boxplot(self):
         plt.figure(figsize=(5, 3))
-        plt.boxplot(self.mse_list)
+        plt.boxplot(
+            self.train_mse_list, positions=[1], notch=True, widths=0.5, labels=["Train"]
+        )
+        plt.boxplot(
+            self.test_mse_list, positions=[2], notch=True, widths=0.5, labels=["Test"]
+        )
         plt.title("MSE")
         plt.ylabel("MSE")
         plt.show()
 
     def plot_mse_by_trial(self):
         plt.figure(figsize=(6, 3))
-        plt.plot(self.mse_list, marker="o")
+        plt.plot(self.train_mse_list, marker="o")
+        plt.plot(self.test_mse_list, marker="o")
         plt.title("MSE for Each Trial")
         plt.xlabel("Trial Number")
         plt.ylabel("MSE")
         plt.show()
 
-    def plot_best_and_worst_reconstructions(self, X, X_hat):
+    def plot_best_and_worst_reconstructions(self):
+
         # Ensure X and X_hat are 2D
-        if X.ndim != 2:
-            X = X.reshape(1, -1)
-        if X_hat.ndim != 2:
-            X_hat = X_hat.reshape(X.shape[0], -1)
+        # if self.test_x_hat.shape[0] != self.loader.test.shape[0]:
+        #     self.test_x_hat = self.test_x_hat.reshape(self.loader.test.shape[0], -1)
+        if self.test_x_hat.ndim != 2:
+            self.test_x_hat = self.test_x_hat.reshape(self.loader.test.shape[0], -1)
         # Find the trial with the minimum and maximum MSE
-        min_mse_trial = np.argmin(self.mse_list)
-        max_mse_trial = np.argmax(self.mse_list)
+        min_mse_trial = np.argmin(self.test_mse_list)
+        max_mse_trial = np.argmax(self.test_mse_list)
 
         # Get the original signal and its reconstruction for these trials
-        x_best = X[min_mse_trial]
-        x_best_hat = X_hat[min_mse_trial]
-        x_worst = X[max_mse_trial]
-        x_worst_hat = X_hat[max_mse_trial]
+        x_best = self.loader.test[min_mse_trial]
+        x_best_hat = self.test_x_hat[min_mse_trial]
+        x_worst = self.loader.test[max_mse_trial]
+        x_worst_hat = self.test_x_hat[max_mse_trial]
 
         fig, axes = plt.subplots(1, 2, figsize=(8, 6))
 
         # Plot original signal
         axes[0].plot(x_best)
         axes[0].plot(x_best_hat)
-        axes[0].set_title("Original Signal (Best)")
+        axes[0].set_title("Original Signal (Best Test)")
         axes[0].set_xlabel("Time")
         axes[0].set_ylabel("Amplitude")
 
         # Plot reconstructed signal
         axes[1].plot(x_worst)
         axes[1].plot(x_worst_hat)
-        axes[1].set_title("Original Signal (Worst)")
+        axes[1].set_title("Original Signal (Worst Test)")
         axes[1].set_xlabel("Time")
         axes[1].set_ylabel("Amplitude")
 
         plt.tight_layout()
         plt.show()
 
-    def plot_activation_by_trial(self, x, z_hat):
+    def plot_activation_by_trial(self):
         # get random idx to plot
-        random_idx = random.randint(0, len(x) - 1)
-        x = x[random_idx]
-        z_hat = z_hat[random_idx]
+
+        random_idx = random.randint(0, len(self.loader.test) - 1)
+        x = self.loader.test[random_idx]
+        z_hat = self.test_z_hat[random_idx]
 
         n_atoms, _ = z_hat.shape
 
@@ -230,9 +256,9 @@ class CDLAnalyzer:
             n_atoms + 1, 1, figsize=(4, 1 * (n_atoms + 1)), sharex=True
         )
         # Plot original signal
-        axes[0].plot(x, color="black")
-        axes[0].set_title("Original Signal")
-        axes[0].set_ylabel("Amplitude")
+        # axes[0].plot(x, color="black")
+        # axes[0].set_title("Original Signal")
+        # axes[0].set_ylabel("Amplitude")
 
         # Plot activation strengths for each atom
         # Generate a list of random colors for each atom
