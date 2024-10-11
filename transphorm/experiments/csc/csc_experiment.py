@@ -17,9 +17,11 @@ from transphorm.preprocessors.loaders import AADataLoader
 load_dotenv()
 
 
-def define_search_space():
+def define_search_space(down_sample_factor):
 
-    sec = 100
+    sample_rate = 1017
+    sec = int(sample_rate // down_sample_factor)
+
     times = [5, 10, 20, 30, 45, 60]
     configs = {
         "algorithm": "bayes",
@@ -34,15 +36,15 @@ def define_search_space():
         "parameters": {
             "n_atoms": [5, 10, 15, 20, 25],
             "n_times_atom": [sec * t for t in times],
-            "reg": [0.01, 0.05, 0.1, 0.5, 1, 5, 10],
-            "n_iter": [10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
+            "reg": [0.001, 0.01, 0.02, 0.05, 0.1, 0.2, 0.5],
+            "n_iter": [10, 20, 30, 40, 50],
             "n_jobs": [4],
             # solver_d_kwargs
             "maxiter": [500, 1000, 1500, 2000],
             "tol": [1e-3, 1e-4, 1e-5, 1e-6],
             "factr": [1e5, 1e6, 1e7, 1e8],
             "pgtol": [1e-3, 1e-4, 1e-5, 1e-6],
-            "l1_ratio": [0.01, 0.05, 0.1, 0.5, 0.95, 0.99],
+            "l1_ratio": [0.01, 0.05, 0.1, 0.5, 0.9],
         },
     }
 
@@ -122,6 +124,8 @@ def main():
     MODEL_SAVE_DIR = Path("/projects/p31961/transphorm/models/csc")
     MODEL_SAVE_DIR.mkdir(parents=True, exist_ok=True)
     COMET_API_KEY = os.getenv("COMET_API_KEY")
+
+    DOWN_SAMPLE_FACTOR = 100
     log.info("loading data")
     loader = AADataLoader(
         FULL_RECORDING_PATH,
@@ -131,12 +135,14 @@ def main():
         smoothing=True,
         smoothing_window_size=250,
         down_sample=True,
-        down_sample_factor=10,
+        down_sample_factor=DOWN_SAMPLE_FACTOR,
     )
     loader.load_data()
     loader.prepare_data(shape_for_arhmm=False)
     log.info("configuring optimizer")
-    opt = comet_ml.Optimizer(config=define_search_space())
+
+    search_space_config = define_search_space(DOWN_SAMPLE_FACTOR)
+    opt = comet_ml.Optimizer(config=search_space_config)
     run_optimizer(
         project_name=PROJECT_NAME,
         opt=opt,
