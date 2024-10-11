@@ -124,7 +124,6 @@ def main():
     MODEL_SAVE_DIR = Path("/projects/p31961/transphorm/models/csc")
     MODEL_SAVE_DIR.mkdir(parents=True, exist_ok=True)
     COMET_API_KEY = os.getenv("COMET_API_KEY")
-d
     DOWN_SAMPLE_FACTOR = 100
     log.info("loading data")
     loader = AADataLoader(
