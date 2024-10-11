@@ -2,6 +2,7 @@
 #SBATCH --account=p31961
 
 #SBATCH --partition=normal
+#SBATCH --nodes=4
 
 #SBATCH --ntasks-per-node=1
 
