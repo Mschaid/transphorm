@@ -4,9 +4,9 @@
 #SBATCH --partition=normal
 #SBATCH --nodes=1
 
-#SBATCH --ntasks-per-node=256
+#SBATCH --ntasks-per-node=40
 
-#SBATCH --mem=1000G
+#SBATCH --mem=200G
 
 #SBATCH --time=32:00:00
 
@@ -23,3 +23,4 @@ python '/projects/p31961/transphorm/transphorm/experiments/csc/csc_experiment.py
 
 
 curl -X POST -H 'Content-type: application/json' --data '{"text":"'${JOB_NAME}' complete"}' $SLACK_WEBHOOK
+q
