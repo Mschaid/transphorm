@@ -1,3 +1,4 @@
+import time
 import comet_ml
 import os
 from pathlib import Path
@@ -100,6 +101,8 @@ def run_optimizer(project_name, opt, loader, log, model_save_dir):
         log.info(f"analyzing model {exp.name}")
 
         analyzer = CDLAnalyzer(model, loader)
+        time.sleep(120)
+        log.info(f"pausing for 120 seconds")
         log.info(f"computing z and x hat {exp.name}")
         analyzer.compute_z_and_x_hat()
         log.info(f"computing mses {exp.name}")
@@ -107,6 +110,11 @@ def run_optimizer(project_name, opt, loader, log, model_save_dir):
         log.info(f"logging metrics {exp.name}")
         exp.log_metric("test_mse", analyzer.test_mse)
         exp.log_metric("train_mse", analyzer.train_mse)
+
+        exp.end()
+        log.info(f"experiment {exp.name} complete")
+        log.info(f"pausing for 120 seconds")
+        time.sleep(120)
 
         # exp.log_curve(name="Objective Function", x=model.trainer.pobjective)
         # exp.log_figure("Objective Function", analyzer.plot_pobjective())
