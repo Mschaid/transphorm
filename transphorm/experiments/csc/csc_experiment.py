@@ -105,8 +105,8 @@ def run_optimizer(project_name, opt, loader, log, model_save_dir):
         log.info(f"computing mses {exp.name}")
         analyzer.compute_mses()
         log.info(f"logging metrics {exp.name}")
-        exp.log_metrics("test_mse", analyzer.test_mse)
-        exp.log_metrics("train_mse", analyzer.train_mse)
+        exp.log_metric("test_mse", analyzer.test_mse)
+        exp.log_metric("train_mse", analyzer.train_mse)
 
         # exp.log_curve(name="Objective Function", x=model.trainer.pobjective)
         # exp.log_figure("Objective Function", analyzer.plot_pobjective())
