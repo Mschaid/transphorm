@@ -101,7 +101,7 @@ def run_optimizer(project_name, opt, loader, log, model_save_dir):
         analyzer = CDLAnalyzer(model, loader)
 
         log.info(f"pausing for 120 seconds")
-        time.sleep(120)
+        time.sleep(60 * 5)
         log.info(f"computing z and x hat {exp.name}")
         analyzer.compute_z_and_x_hat()
         log.info(f"computing mses {exp.name}")
@@ -113,18 +113,18 @@ def run_optimizer(project_name, opt, loader, log, model_save_dir):
         exp.end()
         log.info(f"experiment {exp.name} complete")
         log.info(f"pausing for 120 seconds")
-        time.sleep(120)
+        time.sleep(60 * 5)
 
         # exp.log_curve(name="Objective Function", x=model.trainer.pobjective)
-        # exp.log_figure("Objective Function", analyzer.plot_pobjective())
-        # exp.log_figure("MSE Distribution", analyzer.plot_mse_distribution())
-        # exp.log_figure("MSE Boxplot", analyzer.mse_boxplot())
-        # exp.log_figure("MSE by Trial", analyzer.plot_mse_by_trial())
-        # exp.log_figure("Atoms", analyzer.plot_atoms())
-        # exp.log_figure(
-        #     "Best and Worst Reconstructions",
-        #     analyzer.plot_best_and_worst_reconstructions(),
-        # )
+        exp.log_figure("Objective Function", analyzer.plot_pobjective())
+        exp.log_figure("MSE Distribution", analyzer.plot_mse_distribution())
+        exp.log_figure("MSE Boxplot", analyzer.mse_boxplot())
+        exp.log_figure("MSE by Trial", analyzer.plot_mse_by_trial())
+        exp.log_figure("Atoms", analyzer.plot_atoms())
+        exp.log_figure(
+            "Best and Worst Reconstructions",
+            analyzer.plot_best_and_worst_reconstructions(),
+        )
 
 
 def main():
@@ -135,7 +135,7 @@ def main():
     MODEL_SAVE_DIR = Path("/projects/p31961/transphorm/models/csc")
     MODEL_SAVE_DIR.mkdir(parents=True, exist_ok=True)
     COMET_API_KEY = os.getenv("COMET_API_KEY")
-    DOWN_SAMPLE_FACTOR = 2000
+    DOWN_SAMPLE_FACTOR = 250
     log.info("loading data")
     loader = AADataLoader(
         FULL_RECORDING_PATH,
