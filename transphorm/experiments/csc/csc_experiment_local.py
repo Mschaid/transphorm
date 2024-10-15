@@ -29,7 +29,8 @@ def timeout_handler(signum, frame):
 def define_search_space(down_sample_factor):
 
     sample_rate = 1017
-    sec = int(sample_rate / down_sample_factor)
+    sec = sample_rate / down_sample_factor
+    print(sec)
 
     times = [15, 30, 45, 60, 90]
     configs = {
@@ -44,7 +45,7 @@ def define_search_space(down_sample_factor):
         },
         "parameters": {
             "n_atoms": [3, 5],  # [5, 10, 15, 20, 25],
-            "n_times_atom": [t * sec for t in times],
+            "n_times_atom": [round(t * sec) for t in times],
             "reg": [0.001, 0.01, 0.02, 0.05, 0.1, 0.2, 0.5],
             "n_iter": [5, 6],  # [10, 20, 30, 40, 50],
             # solver_d_kwargs
@@ -172,7 +173,7 @@ def main():
     MODEL_SAVE_DIR = Path("/Users/mds8301/Desktop/csc")
     MODEL_SAVE_DIR.mkdir(parents=True, exist_ok=True)
     COMET_API_KEY = os.getenv("COMET_API_KEY")
-    DOWN_SAMPLE_FACTOR = 500
+    DOWN_SAMPLE_FACTOR = 5000
     log.info("loading data")
     loader = AADataLoader(
         FULL_RECORDING_PATH,

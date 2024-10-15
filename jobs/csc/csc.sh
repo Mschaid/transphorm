@@ -2,9 +2,9 @@
 #SBATCH --account=p31961
 
 #SBATCH --partition=normal
-#SBATCH --nodes=8
+#SBATCH --nodes=1
 
-#SBATCH --ntasks-per-node=8
+#SBATCH --ntasks-per-node=32
 
 #SBATCH --mem=200G
 
