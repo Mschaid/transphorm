@@ -95,24 +95,29 @@ def run_optimizer(project_name, opt, loader, log, model_save_dir):
     for exp in opt.get_experiments(**exp_configs):
         log.info(f"training {exp.name}")
         model = build_model(exp)
+        log.info(f"fitting model {exp.name}")
         model.fit_csc(loader.train)
+        log.info(f"analyzing model {exp.name}")
 
         analyzer = CDLAnalyzer(model, loader)
+        log.info(f"computing z and x hat {exp.name}")
         analyzer.compute_z_and_x_hat()
+        log.info(f"computing mses {exp.name}")
         analyzer.compute_mses()
+        log.info(f"logging metrics {exp.name}")
         exp.log_metrics("test_mse", analyzer.test_mse)
         exp.log_metrics("train_mse", analyzer.train_mse)
 
-        exp.log_curve(name="Objective Function", x=model.trainer.pobjective)
-        exp.log_figure("Objective Function", analyzer.plot_pobjective())
-        exp.log_figure("MSE Distribution", analyzer.plot_mse_distribution())
-        exp.log_figure("MSE Boxplot", analyzer.mse_boxplot())
-        exp.log_figure("MSE by Trial", analyzer.plot_mse_by_trial())
-        exp.log_figure("Atoms", analyzer.plot_atoms())
-        exp.log_figure(
-            "Best and Worst Reconstructions",
-            analyzer.plot_best_and_worst_reconstructions(),
-        )
+        # exp.log_curve(name="Objective Function", x=model.trainer.pobjective)
+        # exp.log_figure("Objective Function", analyzer.plot_pobjective())
+        # exp.log_figure("MSE Distribution", analyzer.plot_mse_distribution())
+        # exp.log_figure("MSE Boxplot", analyzer.mse_boxplot())
+        # exp.log_figure("MSE by Trial", analyzer.plot_mse_by_trial())
+        # exp.log_figure("Atoms", analyzer.plot_atoms())
+        # exp.log_figure(
+        #     "Best and Worst Reconstructions",
+        #     analyzer.plot_best_and_worst_reconstructions(),
+        # )
 
 
 def main():
