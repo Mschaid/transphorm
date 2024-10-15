@@ -94,15 +94,14 @@ def compute_z_and_x_hat(model, data):
 def run_optimizer(project_name, opt, loader, log, model_save_dir):
     exp_configs = experiment_configs(project_name)
     for exp in opt.get_experiments(**exp_configs):
-        log.info(f"training {exp.name}")
+        log.info(f"building model {exp.name}")
         model = build_model(exp)
         log.info(f"fitting model {exp.name}")
         model.fit_csc(loader.train)
-        log.info(f"analyzing model {exp.name}")
-
         analyzer = CDLAnalyzer(model, loader)
-        time.sleep(120)
+
         log.info(f"pausing for 120 seconds")
+        time.sleep(120)
         log.info(f"computing z and x hat {exp.name}")
         analyzer.compute_z_and_x_hat()
         log.info(f"computing mses {exp.name}")
