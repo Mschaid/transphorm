@@ -20,7 +20,7 @@ load_dotenv()
 def define_search_space(down_sample_factor):
 
     sample_rate = 1017
-    sec = int(sample_rate / down_sample_factor)
+    sec = sample_rate / down_sample_factor
 
     times = [15, 30, 45, 60, 90]
     configs = {
@@ -35,7 +35,7 @@ def define_search_space(down_sample_factor):
         },
         "parameters": {
             "n_atoms": [3, 5],  # [5, 10, 15, 20, 25],
-            "n_times_atom": [t * sec for t in times],
+            "n_times_atom": [round(t * sec) for t in times],
             "reg": [0.001, 0.01, 0.02, 0.05, 0.1, 0.2, 0.5],
             "n_iter": [5, 6],  # [10, 20, 30, 40, 50],
             # solver_d_kwargs
@@ -76,7 +76,7 @@ def build_model(exp):
         "n_times_atom": exp.get_parameter("n_times_atom"),
         "reg": exp.get_parameter("reg"),
         "n_iter": exp.get_parameter("n_iter"),
-        "n_jobs": 8,
+        "n_jobs": 256,
         "verbose": 4,
         "random_state": 42,
     }

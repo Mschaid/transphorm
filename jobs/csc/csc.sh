@@ -4,7 +4,7 @@
 #SBATCH --partition=normal
 #SBATCH --nodes=1
 
-#SBATCH --ntasks-per-node=32
+#SBATCH --ntasks-per-node=256
 
 #SBATCH --mem=200G
 
