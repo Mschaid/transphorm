@@ -6,7 +6,7 @@
 
 #SBATCH --ntasks-per-node=256
 
-#SBATCH --mem=200G
+#SBATCH --mem=1000G
 
 #SBATCH --time=32:00:00
 
