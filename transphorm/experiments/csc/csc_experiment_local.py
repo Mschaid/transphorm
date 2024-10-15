@@ -3,10 +3,11 @@ import os
 from pathlib import Path
 import joblib
 import structlog
-
+import time
+from matplotlib import pyplot as plt
 import numpy as np
 from dotenv import load_dotenv
-
+import signal
 from transphorm.model_components.model_modules import (
     CDLTrainer,
     CDLAnalyzer,
@@ -15,6 +16,14 @@ from transphorm.framework_helpers import setup_comet_experimet
 from transphorm.preprocessors.loaders import AADataLoader
 
 load_dotenv()
+
+
+class TimeoutException(Exception):
+    pass
+
+
+def timeout_handler(signum, frame):
+    raise TimeoutException("Function call timed out")
 
 
 def define_search_space(down_sample_factor):
@@ -40,7 +49,7 @@ def define_search_space(down_sample_factor):
             "n_iter": [5, 6],  # [10, 20, 30, 40, 50],
             # solver_d_kwargs
             "maxiter": [100, 200],
-            "tol": [1e-3],
+            "tol": [1e-2],
             "factr": [1e7],
             "pgtol": [1e-5],
             "l1_ratio": [0.01, 0.05, 0.1],
@@ -76,8 +85,8 @@ def build_model(exp):
         "n_times_atom": exp.get_parameter("n_times_atom"),
         "reg": exp.get_parameter("reg"),
         "n_iter": exp.get_parameter("n_iter"),
-        "n_jobs": exp.get_parameter("n_jobs"),
-        "verbose": 4,
+        "n_jobs": 10,
+        "verbose": 6,
         "random_state": 42,
     }
     csc = CDLTrainer(**params, solver_d_kwargs=solver_d_kwargs)
@@ -92,35 +101,75 @@ def compute_z_and_x_hat(model, data):
 
 def run_optimizer(project_name, opt, loader, log, model_save_dir):
     exp_configs = experiment_configs(project_name)
+    signal.signal(signal.SIGALRM, timeout_handler)
+    signal.alarm(60 * 5)
     for exp in opt.get_experiments(**exp_configs):
-        log.info(f"training {exp.name}")
+        start_time = time.time()
+        log.info(f"Starting experiment: {exp.name}")
+
+        log.info("Building model")
         model = build_model(exp)
-        model.fit_csc(loader.train)
 
-        analyzer = CDLAnalyzer(model, loader)
-        analyzer.compute_z_and_x_hat()
-        analyzer.compute_mses()
-        exp.log_metrics("test_mse", analyzer.test_mse)
-        exp.log_metrics("train_mse", analyzer.train_mse)
+        log.info("Fitting model")
+        try:
+            model.fit_csc(loader.train)
 
-        exp.log_curve(name="Objective Function", x=model.trainer.pobjective)
-        exp.log_figure("Objective Function", analyzer.plot_pobjective())
-        exp.log_figure("MSE Distribution", analyzer.plot_mse_distribution())
-        exp.log_figure("MSE Boxplot", analyzer.mse_boxplot())
-        exp.log_figure("MSE by Trial", analyzer.plot_mse_by_trial())
-        exp.log_figure("Atoms", analyzer.plot_atoms())
-        exp.log_figure(
-            "Best and Worst Reconstructions",
-            analyzer.plot_best_and_worst_reconstructions(),
-        )
+            log.info("Creating analyzer")
+            analyzer = CDLAnalyzer(model, loader)
+
+            log.info("Computing z and x hat")
+            z_hat_train = model.transform(loader.train)
+            x_hat_train = model.reconstruct(z_hat_train)
+            analyzer.train_x_hat = x_hat_train
+            z_hat_test = model.transform(loader.test)
+            x_hat_test = model.reconstruct(z_hat_test)
+            analyzer.test_x_hat = x_hat_test
+
+            log.info("Computing MSEs")
+            analyzer.compute_mses()
+            log.info(f"Train MSE: {analyzer.train_mse}, Test MSE: {analyzer.test_mse}")
+
+            exp.log_metric("test_mse", analyzer.test_mse)
+            exp.log_metric("train_mse", analyzer.train_mse)
+            exp.log_parameter("n_atoms", model.n_atoms)
+            exp.log_parameter("n_times_atom", model.n_times_atom)
+            exp.log_parameter("reg", model.reg)
+            exp.log_parameter("n_iter", model.n_iter)
+            exp.log_parameter("maxiter", model.solver_d_kwargs["maxiter"])
+            exp.log_parameter("tol", model.solver_d_kwargs["tol"])
+            exp.log_parameter("factr", model.solver_d_kwargs["factr"])
+            exp.log_parameter("pgtol", model.solver_d_kwargs["pgtol"])
+            exp.log_parameter("l1_ratio", model.solver_d_kwargs["l1_ratio"])
+
+            # exp.log_curve(
+            #     name="Objective Function",
+            #     x=range(len(model.pobjective)),
+            #     y=model.pobjective,
+            # )
+            # exp.log_figure("Objective Function", analyzer.plot_pobjective())
+            # exp.log_figure("MSE Distribution", analyzer.plot_mse_distribution())
+            # exp.log_figure("MSE Boxplot", analyzer.mse_boxplot())
+            # exp.log_figure("MSE by Trial", analyzer.plot_mse_by_trial())
+            # exp.log_figure("Atoms", analyzer.plot_atoms())
+            # exp.log_figure(
+            #     "Best and Worst Reconstructions",
+            #     analyzer.plot_best_and_worst_reconstructions(),
+            # )
+            end_time = time.time()
+            log.info(f"Experiment completed in {end_time - start_time:.2f} seconds")
+            exp.end()
+            plt.close("all")
+        except TimeoutException as e:
+            log.error(f"Error in experiment {exp.name}: {str(e)}")
 
 
 def main():
     load_dotenv()
     log = structlog.get_logger()
-    PROJECT_NAME = "csc"
+    PROJECT_NAME = "csc_local"
     FULL_RECORDING_PATH = Path(os.getenv("FULL_RECORDING_PATH"))
-    MODEL_SAVE_DIR = Path("/projects/p31961/transphorm/models/csc")
+    print(FULL_RECORDING_PATH)
+    MODEL_SAVE_DIR = Path("/Users/mds8301/Desktop/csc")
     MODEL_SAVE_DIR.mkdir(parents=True, exist_ok=True)
     COMET_API_KEY = os.getenv("COMET_API_KEY")
     DOWN_SAMPLE_FACTOR = 500

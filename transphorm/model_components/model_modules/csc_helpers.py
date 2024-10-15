@@ -108,26 +108,32 @@ class CDLAnalyzer:
         self.test_z_hat = None
 
     def compute_z_and_x_hat(self):
-
+        print("Computing z and x_hat called")
         self.train_z_hat = self.trainer.transform(self.loader.train)
         self.test_z_hat = self.trainer.transform(self.loader.test)
 
-        self.train_x_hat = self.trainer.reconstruct(self.train_z_hat)
-        self.test_x_hat = self.trainer.reconstruct(self.test_z_hat)
+        print("Reconstructing x_hat")
+        train_x_hat = self.trainer.reconstruct(self.train_z_hat)
+        self.train_x_hat = train_x_hat.reshape(self.loader.train.shape[0], -1)
+        test_x_hat = self.trainer.reconstruct(self.test_z_hat)
+        self.test_x_hat = test_x_hat.reshape(self.loader.test.shape[0], -1)
+        print("Done")
 
     def compute_mses(self):
         self.train_mse_list = calculate_mse_list(self.loader.train, self.train_x_hat)
         self.test_mse_list = calculate_mse_list(self.loader.test, self.test_x_hat)
-        self.train_mse = np.mean(self.train_mse_list)
-        self.test_mse = np.mean(self.test_mse_list)
+        self.train_mse = np.mean(self.train_mse_list, dtype=np.float64)
+        self.test_mse = np.mean(self.test_mse_list, dtype=np.float64)
 
     def plot_pobjective(self):
-        plt.figure(figsize=(5, 3))
-        plt.plot(self.trainer.pobjective)
-        plt.title("Objective Function")
-        plt.xlabel("Iteration")
-        plt.ylabel("Objective")
-        plt.show()
+        plt.close("all")
+        plt.clf()
+        fig, ax = plt.subplots(figsize=(5, 3))
+        ax.plot(self.trainer.pobjective)
+        ax.set_title("Objective Function")
+        ax.set_xlabel("Iteration")
+        ax.set_ylabel("Objective")
+        return fig
 
     def _get_subplot_arrangement(self, n_atoms):
         """
@@ -155,6 +161,9 @@ class CDLAnalyzer:
         Parameters:
         - d_hat (np.ndarray): Learned atoms of shape (n_atoms, n_channels, n_times_atom).
         """
+        plt.close("all")
+        plt.clf()
+
         n_atoms, _ = self.trainer.d_hat.shape
 
         # Determine the best subplot arrangement
@@ -175,40 +184,48 @@ class CDLAnalyzer:
                 ax.axis("off")  # Hide unused subplots
 
         plt.tight_layout()
-        plt.show()
+
+        return fig
 
     def plot_mse_distribution(self):
-        plt.figure(figsize=(5, 3))
-        plt.hist(self.train_mse_list, bins=20, edgecolor="black", alpha=0.5)
-        plt.hist(self.test_mse_list, bins=20, edgecolor="black", alpha=0.5)
-        plt.title("Distribution of MSE across trials")
-        plt.xlabel("MSE")
-        plt.ylabel("Frequency")
-        plt.show()
+        plt.close("all")
+        plt.clf()
+        fig, ax = plt.subplots(figsize=(5, 3))
+        ax.hist(self.train_mse_list, bins=20, edgecolor="black", alpha=0.5)
+        ax.hist(self.test_mse_list, bins=20, edgecolor="black", alpha=0.5)
+        ax.set_title("Distribution of MSE across trials")
+        ax.set_xlabel("MSE")
+        ax.set_ylabel("Frequency")
+        return fig
 
     def mse_boxplot(self):
-        plt.figure(figsize=(5, 3))
-        plt.boxplot(
+        plt.clf()
+        plt.close("all")
+        fig, ax = plt.subplots(figsize=(5, 3))
+        ax.boxplot(
             self.train_mse_list, positions=[1], notch=True, widths=0.5, labels=["Train"]
         )
-        plt.boxplot(
+        ax.boxplot(
             self.test_mse_list, positions=[2], notch=True, widths=0.5, labels=["Test"]
         )
-        plt.title("MSE")
-        plt.ylabel("MSE")
-        plt.show()
+        ax.set_title("MSE")
+        ax.set_ylabel("MSE")
+        return fig
 
     def plot_mse_by_trial(self):
-        plt.figure(figsize=(6, 3))
-        plt.plot(self.train_mse_list, marker="o")
-        plt.plot(self.test_mse_list, marker="o")
-        plt.title("MSE for Each Trial")
-        plt.xlabel("Trial Number")
-        plt.ylabel("MSE")
-        plt.show()
+        plt.close("all")
+        plt.clf()
+        fig, ax = plt.subplots(figsize=(6, 3))
+        ax.plot(self.train_mse_list, marker="o")
+        ax.plot(self.test_mse_list, marker="o")
+        ax.set_title("MSE for Each Trial")
+        ax.set_xlabel("Trial Number")
+        ax.set_ylabel("MSE")
+        return fig
 
     def plot_best_and_worst_reconstructions(self):
-
+        plt.close("all")
+        plt.clf()
         # Ensure X and X_hat are 2D
         # if self.test_x_hat.shape[0] != self.loader.test.shape[0]:
         #     self.test_x_hat = self.test_x_hat.reshape(self.loader.test.shape[0], -1)
@@ -241,11 +258,12 @@ class CDLAnalyzer:
         axes[1].set_ylabel("Amplitude")
 
         plt.tight_layout()
-        plt.show()
+        return fig
 
     def plot_activation_by_trial(self):
         # get random idx to plot
-
+        plt.close("all")
+        plt.clf()
         random_idx = random.randint(0, len(self.loader.test) - 1)
         x = self.loader.test[random_idx]
         z_hat = self.test_z_hat[random_idx]
@@ -274,4 +292,4 @@ class CDLAnalyzer:
 
         axes[-1].set_xlabel("Time")
         plt.tight_layout()
-        plt.show()
+        return fig
