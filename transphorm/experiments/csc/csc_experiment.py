@@ -76,7 +76,7 @@ def build_model(exp):
         "n_times_atom": exp.get_parameter("n_times_atom"),
         "reg": exp.get_parameter("reg"),
         "n_iter": exp.get_parameter("n_iter"),
-        "n_jobs": exp.get_parameter("n_jobs"),
+        "n_jobs": 8,
         "verbose": 4,
         "random_state": 42,
     }
