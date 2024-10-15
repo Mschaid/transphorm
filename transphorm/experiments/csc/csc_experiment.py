@@ -104,14 +104,13 @@ def run_optimizer(project_name, opt, loader, log, model_save_dir):
         time.sleep(60 * 5)
         log.info(f"computing z and x hat {exp.name}")
         analyzer.compute_z_and_x_hat()
+        time.sleep(60 * 5)
         log.info(f"computing mses {exp.name}")
         analyzer.compute_mses()
         log.info(f"logging metrics {exp.name}")
         exp.log_metric("test_mse", analyzer.test_mse)
         exp.log_metric("train_mse", analyzer.train_mse)
 
-        exp.end()
-        log.info(f"experiment {exp.name} complete")
         log.info(f"pausing for 120 seconds")
         time.sleep(60 * 5)
 
@@ -125,6 +124,9 @@ def run_optimizer(project_name, opt, loader, log, model_save_dir):
             "Best and Worst Reconstructions",
             analyzer.plot_best_and_worst_reconstructions(),
         )
+
+        exp.end()
+        log.info(f"experiment {exp.name} complete")
 
 
 def main():
