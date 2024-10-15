@@ -35,16 +35,16 @@ def define_search_space(down_sample_factor):
             "retryAssignLimit": 0,
         },
         "parameters": {
-            "n_atoms": [3, 5],  # [5, 10, 15, 20, 25],
+            "n_atoms": [3, 5, 10, 15, 20],  # [5, 10, 15, 20, 25],
             "n_times_atom": [round(t * sec) for t in times],
             "reg": [0.001, 0.01, 0.02, 0.05, 0.1, 0.2, 0.5],
-            "n_iter": [5, 6],  # [10, 20, 30, 40, 50],
+            "n_iter": [5, 10, 15],  # [10, 20, 30, 40, 50],
             # solver_d_kwargs
-            "maxiter": [100, 200],
-            "tol": [1e-3],
+            "maxiter": [100, 200, 500],
+            "tol": [1e-4],
             "factr": [1e7],
             "pgtol": [1e-5],
-            "l1_ratio": [0.01, 0.05, 0.1],
+            "l1_ratio": [0.01, 0.05, 0.1, 0.2, 0.5, 0.9],
         },
     }
 
