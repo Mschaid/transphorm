@@ -35,7 +35,7 @@ def define_search_space(down_sample_factor):
             "retryAssignLimit": 0,
         },
         "parameters": {
-            "n_atoms": [3, 5, 10, 15, 20],  # [5, 10, 15, 20, 25],
+            "n_atoms": [5, 10, 15, 20, 30],  # [5, 10, 15, 20, 25],
             "n_times_atom": [round(t * sec) for t in times],
             "reg": [0.001, 0.01, 0.02, 0.05, 0.1, 0.2, 0.5],
             "n_iter": [5, 10, 15],  # [10, 20, 30, 40, 50],
@@ -101,10 +101,10 @@ def run_optimizer(project_name, opt, loader, log, model_save_dir):
         analyzer = CDLAnalyzer(model, loader)
 
         log.info(f"pausing for 120 seconds")
-        time.sleep(60 * 5)
+        time.sleep(60 * 10)
         log.info(f"computing z and x hat {exp.name}")
         analyzer.compute_z_and_x_hat()
-        time.sleep(60 * 5)
+        time.sleep(60 * 15)
         log.info(f"computing mses {exp.name}")
         analyzer.compute_mses()
         log.info(f"logging metrics {exp.name}")
