@@ -142,7 +142,7 @@ def main():
     loader = AADataLoader(
         FULL_RECORDING_PATH,
         butter_filter=True,
-        weiner_filter=False,
+        weiner_filter=True,
         weiner_window_size=2000,
         smoothing=True,
         smoothing_window_size=2000,
