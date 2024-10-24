@@ -132,20 +132,20 @@ def run_optimizer(project_name, opt, loader, log, model_save_dir):
 def main():
     load_dotenv()
     log = structlog.get_logger()
-    PROJECT_NAME = "csc"
+    PROJECT_NAME = "csc_smooth"
     FULL_RECORDING_PATH = Path(os.getenv("FULL_RECORDING_PATH"))
     MODEL_SAVE_DIR = Path("/projects/p31961/transphorm/models/csc")
     MODEL_SAVE_DIR.mkdir(parents=True, exist_ok=True)
     COMET_API_KEY = os.getenv("COMET_API_KEY")
-    DOWN_SAMPLE_FACTOR = 10
+    DOWN_SAMPLE_FACTOR = 250
     log.info("loading data")
     loader = AADataLoader(
         FULL_RECORDING_PATH,
         butter_filter=True,
         weiner_filter=False,
-        weiner_window_size=1000,
+        weiner_window_size=2000,
         smoothing=True,
-        smoothing_window_size=250,
+        smoothing_window_size=2000,
         down_sample=True,
         down_sample_factor=DOWN_SAMPLE_FACTOR,
     )

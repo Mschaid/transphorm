@@ -10,11 +10,11 @@
 
 #SBATCH --time=32:00:00
 
-#SBATCH --job-name='csc'
+#SBATCH --job-name='csc_smooth'
 
-#SBATCH --output='csc.log'
+#SBATCH --output='csc_smooth.log'
 
-JOB_NAME='csc'
+JOB_NAME='csc_smooth'
 
 curl -X POST -H 'Content-type: application/json' --data '{"text":"'${JOB_NAME}' started"}' $SLACK_WEBHOOK
 source activate transphorm
